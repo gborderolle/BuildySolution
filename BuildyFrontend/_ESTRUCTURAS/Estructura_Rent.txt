@@ -1,0 +1,301 @@
+Estructura de Rent (alquiler).
+Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
+
+// Rent ---------------------------------------------------------------
+
+public class Rent : IId
+{
+    #region Internal
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    public DateTime Creation { get; set; } = DateTime.Now;
+
+    public DateTime Update { get; set; } = DateTime.Now;
+
+    public string Comments { get; set; }
+
+    // Uniques
+
+    public string Warrant { get; set; }
+
+    public decimal? MonthlyValue { get; set; }
+
+    public DateTime? Datetime_monthInit { get; set; }
+
+    public string Duration { get; set; }
+
+    public bool RentIsEnded { get; set; }
+
+    public List<Photo> ListPhotos { get; set; }
+
+    #endregion
+
+    #region External
+
+    /// <summary>
+    /// No uso Entidad para no generar dependencia circular
+    /// </summary>
+    [Required(ErrorMessage = "El campo {0} es requerido")] // n..0 (0=no existe este sin el padre)
+    public int EstateId { get; set; }
+    public Estate Estate { get; set; }
+
+    public List<Tenant> ListTenants { get; set; } = new();
+
+    public int PrimaryTenantId { get; set; }
+
+    #endregion
+}
+
+    public class RentDTO
+    {
+        #region Internal
+
+        public int Id { get; set; }
+
+        public DateTime Creation { get; set; } = DateTime.Now;
+
+        public DateTime Update { get; set; } = DateTime.Now;
+
+        public string Comments { get; set; }
+
+        // Uniques
+
+        public string Warrant { get; set; }
+
+        public decimal? MonthlyValue { get; set; }
+
+        public DateTime? Datetime_monthInit { get; set; }
+
+        public string Duration { get; set; }
+
+        public bool RentIsEnded { get; set; }
+
+        public List<Photo> ListPhotos { get; set; }
+
+        #endregion
+
+        #region External
+
+        /// <summary>
+        /// No uso Entidad para no generar dependencia circular
+        /// </summary>
+        public int EstateId { get; set; }
+        public Estate Estate { get; set; }
+
+        public List<Tenant> ListTenants { get; set; } = new();
+
+        public int PrimaryTenantId { get; set; }
+
+        #endregion
+    }
+
+        public class RentCreateDTO
+    {
+        #region Internal
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        public DateTime Creation { get; set; } = DateTime.Now;
+
+        public DateTime Update { get; set; } = DateTime.Now;
+
+        public string Comments { get; set; }
+
+        // Uniques
+
+        public string Warrant { get; set; }
+
+        public decimal? MonthlyValue { get; set; }
+
+        public DateTime? Datetime_monthInit { get; set; }
+
+        public string Duration { get; set; }
+
+        public bool RentIsEnded { get; set; }
+
+        public List<Photo> ListPhotos { get; set; }
+
+        #endregion
+
+        #region External
+
+        /// <summary>
+        /// No uso Entidad para no generar dependencia circular
+        /// </summary>
+        [Required(ErrorMessage = "El campo {0} es requerido")] // n..0 (0=no existe este sin el padre)
+        public int EstateId { get; set; }
+        public Estate Estate { get; set; }
+
+        // public List<TenantCreateDTO> ListTenants { get; set; } = new();
+        public List<int> TenantIds { get; set; } = new List<int>();  // Cambio aquí
+
+        public int PrimaryTenantId { get; set; }
+
+        #endregion
+    }
+
+    [ApiController]
+    [HasHeader("x-version", "1")]
+    [Route("api/rents")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class RentsController : CustomBaseController<Rent> // Notice <Rent> here
+    {
+        private readonly IRentRepository _rentRepository; // Servicio que contiene la lógica principal de negocio para Rents.
+
+        public RentsController(ILogger<RentsController> logger, IMapper mapper, IRentRepository rentRepository)
+        : base(mapper, logger, rentRepository)
+        {
+            _response = new();
+            _rentRepository = rentRepository;
+        }
+
+        #region Endpoints genéricos
+
+        [HttpGet("GetRent")]
+        public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
+        {
+            return await Get<Rent, RentDTO>(paginationDTO: paginationDTO);
+        }
+
+        [HttpGet("all")]
+        [AllowAnonymous]
+        public async Task<ActionResult<APIResponse>> All()
+        {
+            var rents = await _rentRepository.GetAll();
+            _response.Result = _mapper.Map<List<RentDTO>>(rents);
+            _response.StatusCode = HttpStatusCode.OK;
+            return _response;
+        }
+
+        [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/Rents/1
+        public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
+        {
+            // 1..n
+            var includes = new List<IncludePropertyConfiguration<Rent>>
+            {
+                    new IncludePropertyConfiguration<Rent>
+                    {
+                        IncludeExpression = b => b.ListTenants
+                    },
+                new IncludePropertyConfiguration<Rent>
+                    {
+                        IncludeExpression = b => b.ListPhotos
+                    },
+                };
+            return await Get<Rent, RentDTO>(includes: includes);
+        }
+
+        [HttpDelete("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
+        {
+            return await Delete<Rent>(id);
+        }
+
+        [HttpPut("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] RentCreateDTO rentCreateDTO)
+        {
+            return await Put<RentCreateDTO, RentDTO, Rent>(id, rentCreateDTO);
+        }
+
+        [HttpPatch("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<RentPatchDTO> patchDto)
+        {
+            return await Patch<Rent, RentPatchDTO>(id, patchDto);
+        }
+
+        #endregion
+
+        #region Endpoints específicos
+
+         [HttpPost(Name = "CreateRent")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Post([FromForm] RentCreateDTO rentCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError($"Ocurrió un error en el servidor.");
+                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(ModelState);
+                }
+                var estate = await _dbContext.Estate.FindAsync(rentCreateDto.EstateId);
+                if (estate == null)
+                {
+                    _logger.LogError($"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema.");
+                    _response.ErrorMessages = new List<string> { $"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound($"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema.");
+                }
+
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                {
+                    Rent modelo = _mapper.Map<Rent>(rentCreateDto);
+                    modelo.Estate = estate;
+                    modelo.Creation = DateTime.Now;
+                    modelo.Update = DateTime.Now;
+
+                    // Procesamiento de inquilinos
+                    foreach (int tenantId in rentCreateDto.TenantIds)
+                    {
+                        var tenant = await _dbContext.Tenant.FindAsync(tenantId);
+                        if (tenant == null)
+                        {
+                            return NotFound($"El inquilino ID={tenantId} no existe en el sistema.");
+                        }
+                        modelo.ListTenants.Add(tenant);
+                    }
+
+                    await _rentRepository.Create(modelo);
+
+                    // Actualizar la propiedad
+                    estate.PresentRentId = modelo.Id;
+                    estate.EstateIsRented = true;
+                    await _estateRepository.Update(estate);
+
+                    // Procesamiento de fotos
+                    if (rentCreateDto.ListPhotos != null && rentCreateDto.ListPhotos.Count > 0)
+                    {
+                        await ProcessRentPhotos(modelo, rentCreateDto.ListPhotos);
+                    }
+
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                    _response.Result = _mapper.Map<RentDTO>(modelo);
+                    _response.StatusCode = HttpStatusCode.Created;
+                    return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+                return _response;
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        #endregion
+
+    }
+
+
+// ---------------------------------------------------------------
+

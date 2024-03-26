@@ -1,0 +1,303 @@
+Estructura de Estate (propiedad).
+Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
+
+// Estate ---------------------------------------------------------------
+
+public class Estate : IId
+{
+    #region Internal
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+    [FirstCharCapitalValidation]
+    public string Name { get; set; }
+
+    public DateTime Creation { get; set; } = DateTime.Now;
+
+    public DateTime Update { get; set; } = DateTime.Now;
+
+    public string Comments { get; set; }
+
+    // Uniques
+
+    public string Address { get; set; }
+
+    public string LatLong { get; set; }
+
+    public string GoogleMapsURL { get; set; }
+
+    public bool EstateIsRented { get; set; }
+
+    #endregion
+
+    #region External
+
+    public CityDS CityDS { get; set; }
+        public OwnerDS OwnerDS { get; set; }
+
+    public List<Report> ListReports { get; set; } = new();
+
+    public List<Job> ListJobs { get; set; } = new();
+
+    public List<Rent> ListRents { get; set; } = new();
+
+    public int PresentRentId { get; set; } = new();
+
+    #endregion
+}
+
+    public class EstateDTO
+    {
+        #region Internal
+
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public DateTime Creation { get; set; } = DateTime.Now;
+
+        public DateTime Update { get; set; } = DateTime.Now;
+
+        public string Comments { get; set; }
+
+        // Uniques
+
+        public string Address { get; set; }
+
+        public string GoogleMapsURL { get; set; }
+
+        public string LatLong { get; set; }
+
+        public bool EstateIsRented { get; set; }
+
+
+        #endregion
+
+        #region External
+
+        public CityDS CityDS { get; set; }
+        public OwnerDS OwnerDS { get; set; }
+
+        public List<Report> ListReports { get; set; } = new();
+
+        public List<Job> ListJobs { get; set; } = new();
+
+        public List<Rent> ListRents { get; set; } = new();
+
+        public int PresentRentId { get; set; } = new();
+
+
+        #endregion
+    }
+
+    public class EstateCreateDTO
+{
+    #region Internal
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+    [FirstCharCapitalValidation]
+    public string Name { get; set; }
+
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    public string Address { get; set; }
+    public string LatLong { get; set; }
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    public int CityDSId { get; set; }
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    public int OwnerDSId { get; set; }
+    [Required(ErrorMessage = "El campo {0} es requerido")]
+    public string GoogleMapsURL { get; set; }
+    public bool EstateIsRented { get; set; }
+    public string Comments { get; set; }
+    public int PresentRentId { get; set; }
+
+    #endregion
+
+    #region External
+
+    #endregion
+}
+
+[ApiController]
+[HasHeader("x-version", "1")]
+[Route("api/estates")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class EstatesController : CustomBaseController<Estate> // Notice <Estate> here
+{
+    private readonly IEstateRepository _estateRepository; // Servicio que contiene la lógica principal de negocio para Estates.
+    private readonly ContextDB _dbContext;
+
+    public EstatesController(ILogger<EstatesController> logger, IMapper mapper, IEstateRepository estateRepository, ContextDB dbContext)
+    : base(mapper, logger, estateRepository)
+    {
+        _response = new();
+        _estateRepository = estateRepository;
+        _dbContext = dbContext;
+    }
+
+    #region Endpoints genéricos
+
+    [HttpGet("GetEstate")]
+    public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
+    {
+        var includes = new List<IncludePropertyConfiguration<Estate>>
+        {
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.CityDS
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListReports
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListJobs
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListRents
+                }
+            };
+        return await Get<Estate, EstateDTO>(paginationDTO: paginationDTO, includes: includes);
+    }
+
+    [HttpGet("all")]
+    [AllowAnonymous]
+    public async Task<ActionResult<APIResponse>> All()
+    {
+        var estates = await _estateRepository.GetAll();
+        _response.Result = _mapper.Map<List<EstateDTO>>(estates);
+        _response.StatusCode = HttpStatusCode.OK;
+        return _response;
+    }
+
+    [HttpGet("{id}", Name = "GetEstateById")] // url completa: https://localhost:7003/api/Estates/1
+    public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
+    {
+        // 1..n
+        var includes = new List<IncludePropertyConfiguration<Estate>>
+        {
+             new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.CityDS
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListReports
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListJobs
+                },
+                new IncludePropertyConfiguration<Estate>
+                {
+                    IncludeExpression = b => b.ListRents
+                }
+            };
+        return await Get<Estate, EstateDTO>(includes: includes);
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+    public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
+    {
+        return await Delete<Estate>(id);
+    }
+
+    [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+    public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] EstateCreateDTO estateCreateDto)
+    {
+        return await Put<EstateCreateDTO, EstateDTO, Estate>(id, estateCreateDto);
+    }
+
+    [HttpPatch("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+    public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<EstatePatchDTO> patchDto)
+    {
+        return await Patch<Estate, EstatePatchDTO>(id, patchDto);
+    }
+
+    #endregion
+
+    #region Endpoints específicos
+
+    [HttpPost(Name = "CreateEstate")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Post([FromBody] EstateCreateDTO estateCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError($"Ocurrió un error en el servidor.");
+                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(ModelState);
+                }
+                if (await _estateRepository.Get(v => v.Name.ToLower() == estateCreateDto.Name.ToLower()) != null)
+                {
+                    _logger.LogError($"El nombre {estateCreateDto.Name} ya existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"El nombre {estateCreateDto.Name} ya existe en el sistema." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {estateCreateDto.Name} ya existe en el sistema.");
+                    return BadRequest(ModelState);
+                }
+
+                var city = await _dbContext.CityDS.FindAsync(estateCreateDto.CityDSId);
+                if (city == null)
+                {
+                    _logger.LogError($"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema.");
+                    return BadRequest(ModelState);
+                }
+
+                Estate modelo = _mapper.Map<Estate>(estateCreateDto);
+                modelo.CityDS = city; // Asigna el objeto CountryDS resuelto
+                modelo.Creation = DateTime.Now;
+                modelo.Update = DateTime.Now;
+
+                await _estateRepository.Create(modelo);
+                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+
+                _response.Result = _mapper.Map<EstateDTO>(modelo);
+                _response.StatusCode = HttpStatusCode.Created;
+
+                // CreatedAtRoute -> Nombre de la ruta (del método): GetEstateById
+                // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
+                return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return _response;
+        }
+
+    #endregion
+
+    #region Private methods
+
+    #endregion
+
+}
+// ---------------------------------------------------------------
+

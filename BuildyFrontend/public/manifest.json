@@ -1,0 +1,20 @@
+{
+  "name": "buildyv2",
+  "short_name": "Buildy",
+  "dir": "ltr",
+  "lang": "es-UY",
+  "orientation": "portrait-primary",
+  "start_url": ".",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "description": "Con Buildy, los usuarios pueden realizar diversas tareas relacionadas con la administración de propiedades de manera centralizada.",
+  "icons": [
+    {
+      "src": "buildy2.ico",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

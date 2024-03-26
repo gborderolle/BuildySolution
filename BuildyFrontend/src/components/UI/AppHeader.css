@@ -1,0 +1,21 @@
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .CImage {
+    /* display: none; */
+    /* width: 30px; */
+    width: 70px;
+    margin-left: 15px;
+  }
+  .iconContainer {
+    position: absolute;
+    right: 21%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.selectDDLContainer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}

@@ -1,0 +1,11 @@
+.Clock {
+  font-size: 1em;
+  /* font-weight: bold; */
+}
+
+@media only screen and (max-width: 768px) {
+  /* isMoble */
+  .Clock {
+    font-size: 1em;
+  }
+}

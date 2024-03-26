@@ -1,0 +1,46 @@
+.selected-row {
+  background-color: #f0f0f0; /* o cualquier estilo que prefieras */
+}
+
+.table-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .custom-table-responsive {
+    overflow-x: auto;
+  }
+  .hide-on-mobile {
+    display: none;
+  }
+}
+
+.selected-item {
+  background-color: revert;
+  /* background-color: lightgray; */
+}
+
+.list-group-item.active {
+  background-color: #4f5d73;
+  border-color: darkgray;
+}
+
+.list-group-item {
+  font-size: smaller;
+}
+
+.page-link.active,
+.active > .page-link {
+  background-color: #4f5d73;
+  /* border-color: #4f5d73; */
+}
+
+.custom-accordion-header button {
+  padding: 8px;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9f9;
+  color: var(--cui-card-cap-color);
+}

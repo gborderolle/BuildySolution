@@ -1,0 +1,9 @@
+.headerBadge {
+  font-size: medium;
+}
+
+.warningBackground,
+.header-excel {
+  background-color: rgb(252, 252, 73, 0.4);
+  color: red;
+}

@@ -1,0 +1,40 @@
+.footer {
+  min-height: 6rem;
+  display: block;
+}
+
+.fixedFooter {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-wrap: wrap; /* Permite a los elementos pasar a la siguiente línea si no hay espacio */
+  justify-content: center; /* Centra los elementos */
+  align-items: center; /* Alinea los elementos verticalmente */
+  gap: 6px; /* Espacio entre los botones */
+}
+
+.footerButton {
+  flex: 1 0 auto; /* Flexibilidad de crecimiento, sin encogimiento y base auto */
+  max-width: 50px; /* Máximo ancho para cada botón, ajusta según necesidad */
+  padding: 3px; /* Reduce el padding para hacer los botones más pequeños */
+  text-align: center; /* Asegura que el texto esté centrado */
+  /* Agrega más estilos según tus necesidades */
+}
+
+.customButton {
+  width: 100%;
+  /* padding: 10px 20px; */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  height: 40px;
+}
+
+body {
+  padding-bottom: 40px; /* Ajustar según la altura del footer */
+}

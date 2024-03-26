@@ -1,0 +1,404 @@
+Estructura de Job (obra).
+Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
+
+public class Job : IId
+    {
+        #region Internal
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+        [FirstCharCapitalValidation]
+        public string Name { get; set; }
+
+        public string Month { get; set; }
+
+        public DateTime Creation { get; set; } = DateTime.Now;
+
+        public DateTime Update { get; set; } = DateTime.Now;
+
+        public string Comments { get; set; }
+
+        // Uniques
+
+        public decimal LabourCost { get; set; }
+
+        public List<Photo> ListPhotos { get; set; }
+
+        #endregion
+
+        #region External
+
+        [Required(ErrorMessage = "El campo {0} es requerido")] // n..0 (0=no existe este sin el padre)
+        public int EstateId { get; set; }
+        public Estate Estate { get; set; }
+
+        public List<Worker> ListWorkers { get; set; } = new();
+
+        #endregion
+    }
+
+  public class JobCreateDTO
+    {
+        #region Internal
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+        [FirstCharCapitalValidation]
+        public string Name { get; set; }
+
+        public string Month { get; set; }
+
+        public DateTime Creation { get; set; } = DateTime.Now;
+
+        public DateTime Update { get; set; } = DateTime.Now;
+
+        public string Comments { get; set; }
+
+        // Uniques
+
+        public decimal LabourCost { get; set; }
+
+        //public List<Photo> ListPhotos { get; set; }
+        [FileSizeValidation(maxSizeMB: 4)]
+        [FileTypeValidation(fileTypeGroup: FileTypeGroup.Image)]
+        public List<IFormFile> ListPhotos { get; set; } // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/19983788#notes
+
+        #endregion
+
+        #region External
+
+        [Required(ErrorMessage = "El campo {0} es requerido")] // n..0 (0=no existe este sin el padre)
+        public int EstateId { get; set; }
+        public Estate Estate { get; set; }
+
+        // public List<WorkerCreateDTO> ListWorkers { get; set; } = new();
+        public List<int> WorkerIds { get; set; } = new List<int>();
+
+        #endregion
+    }
+
+    public class JobsController : CustomBaseController<Job> // Notice <Job> here
+    {
+        private readonly IJobRepository _jobRepository; // Servicio que contiene la lógica principal de negocio para Jobs.
+        private readonly IPhotoRepository _photoRepository; // Servicio que contiene la lógica principal de negocio para Reports.
+        private readonly ContextDB _dbContext;
+        private readonly IFileStorage _fileStorage;
+
+        public JobsController(ILogger<JobsController> logger, IMapper mapper, IJobRepository jobRepository, IPhotoRepository photoRepository, IFileStorage fileStorage, ContextDB dbContext)
+        : base(mapper, logger, jobRepository)
+        {
+            _response = new();
+            _jobRepository = jobRepository;
+            _photoRepository = photoRepository;
+            _fileStorage = fileStorage;
+            _dbContext = dbContext;
+        }
+
+        #region Endpoints genéricos
+
+        [HttpGet("GetJob")]
+        public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
+        {
+            var includes = new List<IncludePropertyConfiguration<Job>>
+            {
+                    new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.Estate
+                    },
+                new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListWorkers
+                    },
+                new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListPhotos
+                    },
+                };
+            return await Get<Job, JobDTO>(paginationDTO: paginationDTO, includes: includes);
+        }
+
+        [HttpGet("all")]
+        [AllowAnonymous]
+        public async Task<ActionResult<APIResponse>> All()
+        {
+            var jobs = await _jobRepository.GetAll();
+            _response.Result = _mapper.Map<List<JobDTO>>(jobs);
+            _response.StatusCode = HttpStatusCode.OK;
+            return _response;
+        }
+
+        [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/Jobs/1
+        public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
+        {
+            // 1..n
+            var includes = new List<IncludePropertyConfiguration<Job>>
+            {
+                    new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListWorkers
+                    },
+                new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListPhotos
+                    },
+                };
+            return await Get<Job, JobDTO>(includes: includes);
+        }
+
+        [HttpDelete("{id:int}", Name = "DeleteJob")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
+        {
+            try
+            {
+                var job = await _jobRepository.Get(x => x.Id == id, tracked: true, includes: new List<IncludePropertyConfiguration<Job>>
+        {
+            new IncludePropertyConfiguration<Job>
+            {
+                IncludeExpression = j => j.ListPhotos
+            }
+        });
+
+                if (job == null)
+                {
+                    _logger.LogError($"Obra no encontrada ID = {id}.");
+                    _response.ErrorMessages = new List<string> { $"Obra no encontrada ID = {id}." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound($"Obra no encontrada ID = {id}.");
+                }
+                string container = null;
+
+                // Eliminar las fotos asociadas
+                if (job.ListPhotos != null)
+                {
+                    foreach (var photo in job.ListPhotos)
+                    {
+                        container = $"uploads/jobs/estate{job.EstateId}/{photo.Creation.ToString("yyyy_MM")}/job{job.Id}";
+                        await _fileStorage.DeleteFile(photo.URL, container);
+                        _dbContext.Photo.Remove(photo); // Asegúrate de que el contexto de la base de datos sea correcto
+                    }
+
+                }
+
+                if (container != null)
+                {
+                    // Eliminar la carpeta del contenedor una sola vez
+                    await _fileStorage.DeleteFolder(container);
+                }
+
+                await _jobRepository.Remove(job);
+                _logger.LogInformation($"Se eliminó correctamente la obra Id:{id}.");
+                _response.StatusCode = HttpStatusCode.NoContent;
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return BadRequest(_response);
+        }
+
+        [HttpPut("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] JobCreateDTO jobCreateDto)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    _logger.LogError($"Datos de entrada inválidos.");
+                    _response.ErrorMessages = new List<string> { $"Datos de entrada inválidos." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+
+                // 1..n
+                var includes = new List<IncludePropertyConfiguration<Job>>
+            {
+                    new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListWorkers
+                    },
+                new IncludePropertyConfiguration<Job>
+                    {
+                        IncludeExpression = b => b.ListPhotos
+                    },
+                };
+
+                var job = await _jobRepository.Get(v => v.Id == id, includes: includes);
+                if (job == null)
+                {
+                    _logger.LogError($"Trabajo no encontrado ID = {id}.");
+                    _response.ErrorMessages = new List<string> { $"Trabajo no encontrado ID = {id}" };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+
+                // No usar AutoMapper para mapear todo el objeto, sino actualizar campo por campo
+                job.Name = jobCreateDto.Name;
+                job.Month = jobCreateDto.Month;
+                job.LabourCost = jobCreateDto.LabourCost;
+                job.Comments = jobCreateDto.Comments;
+                job.Update = DateTime.Now;
+
+                job.EstateId = jobCreateDto.EstateId;
+                job.Estate = await _dbContext.Estate.FindAsync(jobCreateDto.EstateId);
+
+                // Procesamiento de trabajadores
+                if (jobCreateDto.ListWorkers != null && jobCreateDto.ListWorkers.Count > 0)
+                {
+                    foreach (var workerDto in jobCreateDto.ListWorkers)
+                    {
+                        var workerDB = await _dbContext.Worker.FindAsync(workerDto.Id);
+                        if (workerDB == null)
+                        {
+                            return NotFound($"El trabajador ID={workerDto.Id} no existe en el sistema.");
+                        }
+                        job.ListWorkers.Add(workerDB);
+                    }
+                }
+
+                var updatedJob = await _jobRepository.Update(job);
+
+                _logger.LogInformation($"Se actualizó correctamente La obra Id:{id}.");
+                _response.Result = _mapper.Map<EstateDTO>(updatedJob);
+                _response.StatusCode = HttpStatusCode.OK;
+
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+            }
+            return BadRequest(_response);
+        }
+
+        [HttpPatch("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<JobDTO> patchDto)
+        {
+            return await Patch<Job, JobDTO>(id, patchDto);
+        }
+
+        #endregion
+
+        #region Endpoints específicos
+
+         [HttpPost(Name = "CreateJob")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<APIResponse>> Post([FromForm] JobCreateDTO jobCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Ocurrió un error en el servidor.");
+                    _response.ErrorMessages = new List<string> { "Ocurrió un error en el servidor." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(ModelState);
+                }
+
+                if (await _jobRepository.Get(v => v.Name.ToLower() == jobCreateDto.Name.ToLower()) != null)
+                {
+                    _logger.LogError($"El nombre {jobCreateDto.Name} ya existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"El nombre {jobCreateDto.Name} ya existe en el sistema." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {jobCreateDto.Name} ya existe en el sistema.");
+                    return BadRequest(ModelState);
+                }
+
+                var estate = await _dbContext.Estate.FindAsync(jobCreateDto.EstateId);
+                if (estate == null)
+                {
+                    _logger.LogError($"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema." };
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema.");
+                    return BadRequest(ModelState);
+                }
+
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                {
+                    Job modelo = _mapper.Map<Job>(jobCreateDto);
+                    modelo.Estate = estate;
+                    modelo.Creation = DateTime.Now;
+                    modelo.Update = DateTime.Now;
+
+                    foreach (var workerId in jobCreateDto.WorkerIds)
+                    {
+                        var worker = await _dbContext.Worker.FindAsync(workerId);
+                        if (worker == null)
+                        {
+                            return NotFound($"El trabajador ID={workerId} no existe en el sistema.");
+                        }
+                        modelo.ListWorkers.Add(worker);
+                    }
+
+                    await _jobRepository.Create(modelo);
+
+                    if (jobCreateDto.ListPhotos != null && jobCreateDto.ListPhotos.Count > 0)
+                    {
+                        string dynamicContainer = $"uploads/jobs/estate{estate.Id}/{DateTime.Now:yyyy_MM}/job{modelo.Id}";
+                        foreach (var photoForm in jobCreateDto.ListPhotos)
+                        {
+                            Photo newPhoto = new();
+                            newPhoto.Job = modelo;
+
+                            using (var stream = new MemoryStream())
+                            {
+                                await photoForm.CopyToAsync(stream);
+                                var content = stream.ToArray();
+                                var extension = Path.GetExtension(photoForm.FileName);
+                                newPhoto.URL = await _fileStorage.SaveFile(content, extension, dynamicContainer, photoForm.ContentType);
+                            }
+
+                            await _photoRepository.Create(newPhoto);
+                        }
+                    }
+
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation($"Se creó correctamente la obra Id:{modelo.Id}.");
+                    _response.Result = _mapper.Map<JobDTO>(modelo);
+                    _response.StatusCode = HttpStatusCode.Created;
+
+                    return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.ErrorMessages = new List<string> { ex.ToString() };
+                return _response;
+            }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        #endregion
+
+    }

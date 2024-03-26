@@ -1,0 +1,25 @@
+.clusterIcon {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  background-color: #1c77c9;
+  transform: translate(-25%, -25%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.marker-icon {
+  cursor: pointer;
+}
+
+.customCluster {
+  cursor: pointer;
+}
+
+.leaflet-marker-icon {
+  cursor: pointer;
+}

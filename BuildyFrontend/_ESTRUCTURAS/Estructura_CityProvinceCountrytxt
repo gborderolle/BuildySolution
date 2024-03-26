@@ -1,0 +1,392 @@
+Estructura y relaciones de City, Province y Country (ciudad, departamento y país).
+Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
+
+
+public class CityDS : IId
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+
+  #endregion
+
+  #region External
+
+  public int ProvinceDSId { get; set; }
+  public ProvinceDS ProvinceDS { get; set; }
+
+  public string NominatimCityCode { get; set; }
+
+  #endregion
+
+}
+public class CityDSDTO
+{
+  #region Internal
+
+  public int Id { get; set; }
+  public string Name { get; set; }
+  public DateTime Creation { get; set; } = DateTime.Now; public DateTime Update { get; set; } = DateTime.Now;
+  public string NominatimCityCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  public int ProvinceDSId { get; set; }
+
+  #endregion
+}
+
+public class CityDSCreateDTO
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+  public string NominatimCityCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  public int ProvinceDSId { get; set; }
+
+  #endregion
+
+}
+public class ProvinceDS : IId
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+
+  public string NominatimProvinceCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  public int CountryDSId { get; set; }
+  public CountryDS CountryDS { get; set; }
+
+  #endregion
+}
+
+public class ProvinceDSDTO
+{
+  #region Internal
+
+  public int Id { get; set; }
+  public string Name { get; set; }
+  public DateTime Creation { get; set; } = DateTime.Now;
+  public DateTime Update { get; set; } = DateTime.Now;
+  public string NominatimProvinceCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  public int CountryDSId { get; set; }
+
+  #endregion
+
+}
+
+public class ProvinceDSCreateDTO
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+  public string NominatimProvinceCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  public int CountryDSId { get; set; }
+
+  #endregion
+
+}
+
+public class CountryDS : IId
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+
+  public string NominatimCountryCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  #endregion
+}
+public class CountryDSDTO
+{
+  #region Internal
+
+  public int Id { get; set; }
+  public string Name { get; set; }
+  public DateTime Creation { get; set; } = DateTime.Now;
+  public DateTime Update { get; set; } = DateTime.Now;
+  public string NominatimCountryCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  #endregion
+
+}
+
+public class CountryDSCreateDTO
+{
+  #region Internal
+
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public int Id { get; set; }
+
+  [Required(ErrorMessage = "El campo {0} es requerido")]
+  [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
+  [FirstCharCapitalValidation]
+  public string Name { get; set; }
+
+  public DateTime Creation { get; set; } = DateTime.Now;
+
+  public DateTime Update { get; set; } = DateTime.Now;
+
+  public string NominatimCountryCode { get; set; }
+
+  #endregion
+
+  #region External
+
+  #endregion
+
+}
+
+[HttpPost(Name = "CreateCity")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+public async Task<ActionResult<APIResponse>> Post([FromBody] CityDSCreateDTO cityCreateDto)
+{
+  try
+  {
+    if (!ModelState.IsValid)
+    {
+      _logger.LogError($"Ocurrió un error en el servidor.");
+      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      return BadRequest(ModelState);
+    }
+    if (await _cityRepository.Get(v => v.Name.ToLower() == cityCreateDto.Name.ToLower()) != null)
+    {
+      _logger.LogError($"El nombre {cityCreateDto.Name} ya existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El nombre {cityCreateDto.Name} ya existe en el sistema." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      ModelState.AddModelError("NameAlreadyExists", $"El nombre {cityCreateDto.Name} ya existe en el sistema.");
+      return BadRequest(ModelState);
+    }
+
+    var province = await _dbContext.ProvinceDS.FindAsync(cityCreateDto.ProvinceDSId);
+    if (province == null)
+    {
+      _logger.LogError($"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      ModelState.AddModelError("NameAlreadyExists", $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema.");
+      return BadRequest(ModelState);
+    }
+
+    CityDS modelo = _mapper.Map<CityDS>(cityCreateDto);
+    modelo.ProvinceDS = province; // Asigna el objeto CountryDS resuelto
+    modelo.Creation = DateTime.Now;
+    modelo.Update = DateTime.Now;
+
+    await _cityRepository.Create(modelo);
+    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+
+    _response.Result = _mapper.Map<CityDSDTO>(modelo);
+    _response.StatusCode = HttpStatusCode.Created;
+
+    // CreatedAtRoute -> Nombre de la ruta (del método): GetCityById
+    // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
+    return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+  }
+  catch (Exception ex)
+  {
+    _logger.LogError(ex.ToString());
+    _response.IsSuccess = false;
+    _response.StatusCode = HttpStatusCode.InternalServerError;
+    _response.ErrorMessages = new List<string> { ex.ToString() };
+  }
+  return _response;
+}
+
+[HttpPost(Name = "CreateProvince")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO provinceCreateDto)
+{
+  try
+  {
+    if (!ModelState.IsValid)
+    {
+      _logger.LogError($"Ocurrió un error en el servidor.");
+      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      return BadRequest(ModelState);
+    }
+    if (await _provinceRepository.Get(v => v.Name.ToLower() == provinceCreateDto.Name.ToLower()) != null)
+    {
+      _logger.LogError($"El nombre {provinceCreateDto.Name} ya existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El nombre {provinceCreateDto.Name} ya existe en el sistema." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      ModelState.AddModelError("NameAlreadyExists", $"El nombre {provinceCreateDto.Name} ya existe en el sistema.");
+      return BadRequest(ModelState);
+    }
+
+    var country = await _dbContext.CountryDS.FindAsync(provinceCreateDto.CountryDSId);
+    if (country == null)
+    {
+      _logger.LogError($"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema.");
+      return BadRequest(ModelState);
+    }
+
+    ProvinceDS modelo = _mapper.Map<ProvinceDS>(provinceCreateDto);
+    modelo.CountryDS = country; // Asigna el objeto CountryDS resuelto
+    modelo.Creation = DateTime.Now;
+    modelo.Update = DateTime.Now;
+
+    await _provinceRepository.Create(modelo);
+    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+
+    _response.Result = _mapper.Map<ProvinceDSDTO>(modelo);
+    _response.StatusCode = HttpStatusCode.Created;
+
+    // CreatedAtRoute -> Nombre de la ruta (del método): GetProvinceById
+    // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
+    return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+  }
+  catch (Exception ex)
+  {
+    _logger.LogError(ex.ToString());
+    _response.IsSuccess = false;
+    _response.StatusCode = HttpStatusCode.InternalServerError;
+    _response.ErrorMessages = new List<string> { ex.ToString() };
+  }
+  return _response;
+}
+
+[HttpPost(Name = "CreateCountry")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+public async Task<ActionResult<APIResponse>> Post([FromBody] CountryDSCreateDTO countryCreateDto)
+{
+  try
+  {
+    if (!ModelState.IsValid)
+    {
+      _logger.LogError($"Ocurrió un error en el servidor.");
+      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      return BadRequest(ModelState);
+    }
+    if (await _countryRepository.Get(v => v.Name.ToLower() == countryCreateDto.Name.ToLower()) != null)
+    {
+      _logger.LogError($"El nombre {countryCreateDto.Name} ya existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El nombre {countryCreateDto.Name} ya existe en el sistema." };
+      _response.IsSuccess = false;
+      _response.StatusCode = HttpStatusCode.BadRequest;
+      ModelState.AddModelError("NameAlreadyExists", $"El nombre {countryCreateDto.Name} ya existe en el sistema.");
+      return BadRequest(ModelState);
+    }
+
+    CountryDS modelo = _mapper.Map<CountryDS>(countryCreateDto);
+    modelo.Creation = DateTime.Now;
+    modelo.Update = DateTime.Now;
+
+    await _countryRepository.Create(modelo);
+    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+
+    _response.Result = _mapper.Map<CountryDSDTO>(modelo);
+    _response.StatusCode = HttpStatusCode.Created;
+
+    // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryDSById
+    // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
+    return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+  }
+  catch (Exception ex)
+  {
+    _logger.LogError(ex.ToString());
+    _response.IsSuccess = false;
+    _response.StatusCode = HttpStatusCode.InternalServerError;
+    _response.ErrorMessages = new List<string> { ex.ToString() };
+  }
+  return _response;
+}

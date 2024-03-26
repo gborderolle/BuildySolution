@@ -1,0 +1,6 @@
+@BuildyBackend.UI_HostAddress = http://localhost:5091
+
+GET {{BuildyBackend.UI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

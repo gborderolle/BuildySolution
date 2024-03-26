@@ -1,0 +1,36 @@
+.selected-item {
+  background-color: revert;
+  /* background-color: lightgray; */
+}
+
+.list-group-item.active {
+  background-color: #4f5d73;
+  border-color: darkgray;
+}
+
+.list-group-item,
+.form-check-label,
+.list-group-item-action,
+span {
+  font-size: smaller;
+}
+
+.page-link.active,
+.active > .page-link {
+  background-color: #4f5d73;
+  /* border-color: #4f5d73; */
+}
+
+.form-check-input:checked {
+  background-color: #4f5d73;
+  border-color: #4f5d73;
+}
+
+.custom-accordion-header button {
+  padding: 8px;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9f9;
+  color: var(--cui-card-cap-color);
+}
