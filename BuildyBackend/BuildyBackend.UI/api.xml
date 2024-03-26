@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BuildyBackend.UI</name>
+    </assembly>
+    <members>
+        <member name="T:BuildyBackend.UI.Controllers.V1.CustomBaseController`1">
+            <summary>
+            Esta versión simplifica los Controllers con esta base, mantengo ambas por si falla.
+            Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/20659018#notes
+            </summary>
+        </member>
+        <member name="T:BuildyBackend.UI.StartupExtensions.ConfigureServicesExtensions">
+            <summary>
+            Extension method to configure services
+            s: https://www.udemy.com/course/asp-net-core-true-ultimate-guide-real-project/learn/lecture/34524780#overview
+            </summary>
+        </member>
+    </members>
+</doc>

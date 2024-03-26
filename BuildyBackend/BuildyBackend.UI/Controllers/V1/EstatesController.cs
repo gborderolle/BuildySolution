@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Infrastructure.DbContext;
 using BuildyBackend.Core.Helpers;
-using BuildyBackend.Services;
+using BuildyBackend.Infrastructure.Services;
 
 namespace BuildyBackend.UI.Controllers.V1
 {

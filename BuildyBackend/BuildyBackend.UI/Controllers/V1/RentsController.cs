@@ -19,9 +19,9 @@ namespace BuildyBackend.UI.Controllers.V1
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RentsController : CustomBaseController<Rent> // Notice <Rent> here
     {
-        private readonly IRentRepository _rentRepository; // Servicio que contiene la lógica principal de negocio para Rents.
-        private readonly IEstateRepository _estateRepository; // Servicio que contiene la lógica principal de negocio para Reports.
-        private readonly IFileRepository _fileRepository; // Servicio que contiene la lógica principal de negocio para Reports.
+        private readonly IRentRepository _rentRepository;
+        private readonly IEstateRepository _estateRepository;
+        private readonly IFileRepository _fileRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
         private readonly IFileStorage _fileStorage;

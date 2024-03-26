@@ -145,7 +145,7 @@ public class Rent : IId
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RentsController : CustomBaseController<Rent> // Notice <Rent> here
     {
-        private readonly IRentRepository _rentRepository; // Servicio que contiene la lógica principal de negocio para Rents.
+        private readonly IRentRepository _rentRepository;
 
         public RentsController(ILogger<RentsController> logger, IMapper mapper, IRentRepository rentRepository)
         : base(mapper, logger, rentRepository)

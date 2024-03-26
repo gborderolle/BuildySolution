@@ -20,7 +20,7 @@ namespace BuildyBackend.UI.Controllers.V1
     public class JobsController : CustomBaseController<Job> // Notice <Job> here
     {
         private readonly IJobRepository _jobRepository; // Servicio que contiene la lógica principal de negocio para Jobs.
-        private readonly IPhotoRepository _photoRepository; // Servicio que contiene la lógica principal de negocio para Reports.
+        private readonly IPhotoRepository _photoRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
         private readonly IFileStorage _fileStorage;

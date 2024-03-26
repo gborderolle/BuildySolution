@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.Infrastructure.DbContext;
+using BuildyBackend.Infrastructure.Services;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -16,9 +17,9 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/workers")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class WorkersController : CustomBaseController<Worker> // Notice <Worker> here
+    public class WorkersController : CustomBaseController<Worker>
     {
-        private readonly IWorkerRepository _workerRepository; // Servicio que contiene la lógica principal de negocio para Workers.
+        private readonly IWorkerRepository _workerRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
 

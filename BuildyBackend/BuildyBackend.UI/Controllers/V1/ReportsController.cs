@@ -19,8 +19,8 @@ namespace BuildyBackend.UI.Controllers.V1
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ReportsController : CustomBaseController<Report> // Notice <Report> here
     {
-        private readonly IReportRepository _reportRepository; // Servicio que contiene la lógica principal de negocio para Reports.
-        private readonly IPhotoRepository _photoRepository; // Servicio que contiene la lógica principal de negocio para Reports.
+        private readonly IReportRepository _reportRepository;
+        private readonly IPhotoRepository _photoRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
         private readonly IFileStorage _fileStorage;
