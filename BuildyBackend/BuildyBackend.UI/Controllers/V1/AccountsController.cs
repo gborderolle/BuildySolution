@@ -15,16 +15,16 @@ using Wangkanai.Detection.Services;
 using BuildyBackend.Infrastructure.DbContext;
 using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.Helpers;
-using System.Security.Cryptography;
 using BuildyBackend.Core.Domain.IdentityEntities;
 using BuildyBackend.Infrastructure.Services;
-
+using BuildyBackend.Core.Enums;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
     [ApiController]
     [HasHeader("x-version", "1")]
     [Route("api/accounts")]
+    [Authorize(Roles = nameof(UserTypeOptions.Admin))]
     public class AccountsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -116,7 +116,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
 
         [HttpGet("GetLogs")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> GetLogs([FromQuery] PaginationDTO paginationDTO)
         {
             try
@@ -163,7 +163,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPost("makeAdmin")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> MakeAdmin([FromBody] string usuarioId)
         {
             try
@@ -184,7 +184,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPost("removeAdmin")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> RemoveAdmin([FromBody] string usuarioId)
         {
             try
@@ -204,8 +204,8 @@ namespace BuildyBackend.UI.Controllers.V1
             return Ok(_response);
         }
 
-        [HttpPost("register")] //api/accounts/register
-        public async Task<ActionResult<APIResponse>> Register(BuilderUserCreateDTO builderUserCreateDTO)
+        [HttpPost("CreateUser")] //api/accounts/CreateUser
+        public async Task<ActionResult<APIResponse>> CreateUser(BuilderUserCreateDTO builderUserCreateDTO)
         {
             try
             {
@@ -261,7 +261,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPut("UpdateUser/{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> UpdateUser(string id, [FromBody] BuilderUserUpdateDTO builderUserUpdateDTO)
         {
             try
@@ -312,7 +312,8 @@ namespace BuildyBackend.UI.Controllers.V1
             return Ok(_response);
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult<APIResponse>> Login([FromBody] BuilderUserLoginDTO builderUserLoginDTO)
         {
             try
@@ -351,9 +352,8 @@ namespace BuildyBackend.UI.Controllers.V1
             return Ok(_response);
         }
 
-
         [HttpPost("CreateUserRole")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> CreateUserRole([FromBody] BuilderRoleCreateDTO model)
         {
             try
@@ -398,7 +398,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPut("UpdateUserRole/{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
         public async Task<ActionResult<APIResponse>> UpdateUserRole(string id, [FromBody] BuilderRoleUpdateDTO model)
         {
             try

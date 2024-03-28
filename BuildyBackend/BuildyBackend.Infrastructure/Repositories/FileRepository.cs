@@ -3,7 +3,6 @@ using BuildyBackend.Core.Domain.RepositoryContracts;
 using Microsoft.EntityFrameworkCore;
 using BuildyBackend.Infrastructure.DbContext;
 
-
 namespace BuildyBackend.Infrastructure.Repositories
 {
     public class FileRepository : Repository<File1>, IFileRepository
@@ -15,9 +14,7 @@ namespace BuildyBackend.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
         public async Task<File1> Update(File1 entity)
-#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
         {
             entity.Update = DateTime.Now;
             _dbContext.Update(entity);

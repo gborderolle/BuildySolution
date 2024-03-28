@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-
 namespace BuildyBackend.Core.Domain.Entities
 {
     public class CityDS : IId

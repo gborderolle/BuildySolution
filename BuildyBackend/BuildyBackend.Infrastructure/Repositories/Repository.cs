@@ -18,7 +18,7 @@ namespace BuildyBackend.Infrastructure.Repositories
         public Repository(ContextDB db)
         {
             _dbContext = db;
-            this.dbSet = _dbContext.Set<T>();
+            dbSet = _dbContext.Set<T>();
         }
 
         public async Task Create(T entity)
@@ -26,7 +26,6 @@ namespace BuildyBackend.Infrastructure.Repositories
             await dbSet.AddAsync(entity);
             await Save();
         }
-
 
         public async Task<T> Update(T entity)
         {
