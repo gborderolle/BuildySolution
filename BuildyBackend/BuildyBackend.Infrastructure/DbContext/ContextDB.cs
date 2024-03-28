@@ -1,6 +1,7 @@
 using BuildyBackend.Core;
 using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.Domain.IdentityEntities;
+using BuildyBackend.Core.Enums;
 using BuildyBackend.Core.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -58,17 +59,17 @@ namespace BuildyBackend.Infrastructure.DbContext
             // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/20660148#notes
             // Generar GUID: https://guidgenerator.com/online-guid-generator.aspx
             // ---------------- Usuarios ---------------------------------------------
-            var userAdminId = "c2ee6493-5a73-46f3-a3f2-46d1d11d7176";
-            var rolAdminId = "bef4cbd4-1f2b-472f-a1e2-e1a901f6808c";
 
-            var userUserId = "e0765c93-676c-4199-b7ee-d7877c471821";
+            var rolAdminId = "bef4cbd4-1f2b-472f-a1e2-e1a901f6808c";
             var rolUserId = "bef4cbd4-1f2b-472f-a3f2-e1a901f6811c";
+
+            #region Creación de roles - datos estáticos
 
             var rolAdmin = new BuildyRole
             {
                 Id = rolAdminId,
-                Name = "Admin",
-                NormalizedName = "ADMIN",
+                Name = UserTypeOptions.Admin.ToString(),
+                NormalizedName = UserTypeOptions.Admin.ToString().Normalize().ToUpper(),
                 Creation = DateTime.Now,
                 Update = DateTime.Now
             };
@@ -76,91 +77,48 @@ namespace BuildyBackend.Infrastructure.DbContext
             var rolUser = new BuildyRole
             {
                 Id = rolUserId,
-                Name = "User",
-                NormalizedName = "USER",
+                Name = UserTypeOptions.User.ToString(),
+                NormalizedName = UserTypeOptions.User.ToString().Normalize().ToUpper(),
                 Creation = DateTime.Now,
                 Update = DateTime.Now
             };
 
-            var passwordHasher = new PasswordHasher<BuildyUser>();
-
-            var username1 = "useradmin";
-            var email1 = "admin@buildy.lat";
-            var userAdmin = new BuildyUser()
-            {
-                Id = userAdminId,
-                UserName = username1,
-                NormalizedUserName = username1.ToUpper(),
-                Email = email1,
-                NormalizedEmail = email1.ToUpper(),
-                PasswordHash = passwordHasher.HashPassword(null, "useradmin1234"),
-                Name = "Usuario administrador"
-            };
-
-            var username2 = "usernormal";
-            var email2 = "normal@buildy.lat";
-            var userUser = new BuildyUser()
-            {
-                Id = userUserId,
-                UserName = username2,
-                NormalizedUserName = username2.ToUpper(),
-                Email = email2,
-                NormalizedEmail = email2.ToUpper(),
-                PasswordHash = passwordHasher.HashPassword(null, "usernormal1234"),
-                Name = "Usuario normal"
-            };
-
-            var username3 = "mirtadls";
-            var email3 = "mirta@buildy.lat";
-            var id3 = "58fbedfc-e682-479b-ba46-19ef4c137d2a";
-            var userMirta = new BuildyUser()
-            {
-                Id = id3,
-                UserName = username3,
-                NormalizedUserName = username3.ToUpper(),
-                Email = email3,
-                NormalizedEmail = email3.ToUpper(),
-                PasswordHash = passwordHasher.HashPassword(null, "mirtadls1234"),
-                Name = "Mirta de los Santos"
-            };
-
-            var username4 = "irgla";
-            var email4 = "gladys@buildy.lat";
-            var id4 = "11c767dc-e8ce-448e-8fdb-ee590a44a3ff";
-            var userGladys = new BuildyUser()
-            {
-                Id = id4,
-                UserName = username4,
-                NormalizedUserName = username4.ToUpper(),
-                Email = email4,
-                NormalizedEmail = email4.ToUpper(),
-                PasswordHash = passwordHasher.HashPassword(null, "irgla1234"),
-                Name = "Gladys de los Santos"
-            };
-
-            modelBuilder.Entity<BuildyUser>()
-                .HasData(userAdmin, userUser, userMirta, userGladys);
-
             modelBuilder.Entity<BuildyRole>()
                 .HasData(rolAdmin, rolUser);
 
+            #endregion 
+
+            #region Creación de usuarios
+
+            var passwordHasher = new PasswordHasher<BuildyUser>();
+
+            var userAdminId = "c2ee6493-5a73-46f3-a3f2-46d1d11d7176";
+            var username = "useradmin";
+            var email = "admin@buildy.lat";
+            var userAdmin = new BuildyUser()
+            {
+                Id = userAdminId,
+                UserName = username,
+                NormalizedUserName = username.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                PasswordHash = passwordHasher.HashPassword(null, username + "1234"),
+                Name = "Usuario administrador"
+            };
+
+            // Guardar en BD
+            modelBuilder.Entity<BuildyUser>()
+                .HasData(userAdmin);
+
+            // Asignar rol y guardar en BD
             modelBuilder.Entity<IdentityUserClaim<string>>()
                 .HasData(new IdentityUserClaim<string>()
                 {
                     Id = 1,
                     ClaimType = "role",
                     UserId = userAdminId,
-                    ClaimValue = "admin"
+                    ClaimValue = UserTypeOptions.Admin.ToString(),
                 });
-
-            modelBuilder.Entity<IdentityUserClaim<string>>()
-    .HasData(new IdentityUserClaim<string>()
-    {
-        Id = 2,
-        ClaimType = "role",
-        UserId = userUserId,
-        ClaimValue = "user"
-    });
 
             // Asignar roles a usuarios
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
@@ -168,23 +126,126 @@ namespace BuildyBackend.Infrastructure.DbContext
                 {
                     RoleId = rolAdminId,
                     UserId = userAdminId
-                },
+                });
+
+            // ----------
+
+            var userUserId = "e0765c93-676c-4199-b7ee-d7877c471821";
+            username = "usernormal";
+            email = "normal@buildy.lat";
+            var userUser = new BuildyUser()
+            {
+                Id = userUserId,
+                UserName = username,
+                NormalizedUserName = username.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                PasswordHash = passwordHasher.HashPassword(null, username + "1234"),
+                Name = "Usuario normal"
+            };
+
+            // Guardar en BD
+            modelBuilder.Entity<BuildyUser>()
+                .HasData(userUser);
+
+            // Asignar rol y guardar en BD
+            modelBuilder.Entity<IdentityUserClaim<string>>()
+                .HasData(new IdentityUserClaim<string>()
+                {
+                    Id = 2,
+                    ClaimType = "role",
+                    UserId = userUserId,
+                    ClaimValue = UserTypeOptions.User.ToString(),
+                });
+
+            // Asignar roles a usuarios
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string>
                 {
-                    RoleId = rolUserId,
+                    RoleId = rolAdminId,
                     UserId = userUserId
-                },
+                });
+
+            // ----------
+
+            username = "mirtadls";
+            email = "mirta@buildy.lat";
+            var mirtadlsId = "58fbedfc-e682-479b-ba46-19ef4c137d2a";
+            var userMirta = new BuildyUser()
+            {
+                Id = mirtadlsId,
+                UserName = username,
+                NormalizedUserName = username.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                PasswordHash = passwordHasher.HashPassword(null, username + "1234"),
+                Name = "Mirta de los Santos"
+            };
+
+            // Guardar en BD
+            modelBuilder.Entity<BuildyUser>()
+                .HasData(userMirta);
+
+            // Asignar rol y guardar en BD
+            modelBuilder.Entity<IdentityUserClaim<string>>()
+                .HasData(new IdentityUserClaim<string>()
+                {
+                    Id = 3,
+                    ClaimType = "role",
+                    UserId = mirtadlsId,
+                    ClaimValue = UserTypeOptions.User.ToString(),
+                });
+
+            // Asignar roles a usuarios
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string>
                 {
-                    RoleId = rolUserId,
-                    UserId = userMirta.Id
-                },
+                    RoleId = rolAdminId,
+                    UserId = mirtadlsId
+                });
+
+            // ----------
+
+            username = "irgla";
+            email = "gladys@buildy.lat";
+            var irglaId = "11c767dc-e8ce-448e-8fdb-ee590a44a3ff";
+            var userGladys = new BuildyUser()
+            {
+                Id = irglaId,
+                UserName = username,
+                NormalizedUserName = username.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                PasswordHash = passwordHasher.HashPassword(null, username + "1234"),
+                Name = "Gladys de los Santos"
+            };
+
+            // Guardar en BD
+            modelBuilder.Entity<BuildyUser>()
+                .HasData(userGladys);
+
+            // Asignar rol y guardar en BD
+            modelBuilder.Entity<IdentityUserClaim<string>>()
+                .HasData(new IdentityUserClaim<string>()
+                {
+                    Id = 4,
+                    ClaimType = "role",
+                    UserId = irglaId,
+                    ClaimValue = UserTypeOptions.User.ToString(),
+                });
+
+            // Asignar roles a usuarios
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string>
                 {
-                    RoleId = rolUserId,
-                    UserId = userGladys.Id
-                }
-            );
+                    RoleId = rolAdminId,
+                    UserId = irglaId
+                });
+
+            // ----------
+
+            #endregion 
+
         }
 
         private void SeedEntities(ModelBuilder modelBuilder)

@@ -24,7 +24,7 @@ namespace Buildyv2.Models
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
 
@@ -53,7 +53,7 @@ namespace Buildyv2.Models
         public List<Job> ListJobs { get; set; } = new();
 
         public List<Rent> ListRents { get; set; } = new();
-        
+
         public int PresentRentId { get; set; } = new();
 
         #endregion
@@ -92,7 +92,7 @@ namespace Buildyv2.Models
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
 
@@ -159,7 +159,7 @@ namespace Buildyv2.Models
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
 
@@ -216,7 +216,7 @@ namespace Buildyv2.Models
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
         public List<Photo> ListPhotos { get; set; }
@@ -265,7 +265,7 @@ namespace Buildyv2.Models
 
         public string IdentityDocument { get; set; }
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         #endregion
 
@@ -308,7 +308,7 @@ namespace Buildyv2.Models
 
         public string IdentityDocument { get; set; }
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         #endregion
 

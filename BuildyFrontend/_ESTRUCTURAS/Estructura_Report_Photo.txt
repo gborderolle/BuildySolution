@@ -20,7 +20,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
         public List<Photo> ListPhotos { get; set; }
@@ -49,7 +49,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
         //public List<Photo> ListPhotos { get; set; }
@@ -83,7 +83,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
         //public List<Photo> ListPhotos { get; set; }

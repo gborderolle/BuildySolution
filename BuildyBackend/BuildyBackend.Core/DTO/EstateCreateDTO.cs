@@ -24,7 +24,7 @@ namespace BuildyBackend.Core.DTO
         public int OwnerDSId { get; set; }
         public string GoogleMapsURL { get; set; }
         public bool EstateIsRented { get; set; }
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
         public int? PresentRentId { get; set; }
 
         #endregion

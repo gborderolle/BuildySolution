@@ -23,7 +23,7 @@ namespace BuildyBackend.Core.DTO
 
         public string IdentityDocument { get; set; }
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         #endregion
 

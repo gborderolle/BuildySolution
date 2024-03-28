@@ -20,7 +20,7 @@ public class Estate : IId
 
     public DateTime Update { get; set; } = DateTime.Now;
 
-    public string Comments { get; set; }
+    public string? Comments { get; set; }
 
     // Uniques
 
@@ -62,7 +62,7 @@ public class Estate : IId
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         // Uniques
 
@@ -117,7 +117,7 @@ public class Estate : IId
     [Required(ErrorMessage = "El campo {0} es requerido")]
     public string GoogleMapsURL { get; set; }
     public bool EstateIsRented { get; set; }
-    public string Comments { get; set; }
+    public string? Comments { get; set; }
     public int PresentRentId { get; set; }
 
     #endregion
