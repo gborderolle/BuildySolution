@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuildyBackend.Core.DTO
 {
-    public class OwnerDSCreateDTO
+    public class OwnerCreateDTO
     {
         #region Internal
 

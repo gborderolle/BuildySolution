@@ -25,9 +25,9 @@ namespace BuildyBackend.Core.DTO
         public string Phone { get; set; }
 
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string IdentityDocument { get; set; }
+        public string? IdentityDocument { get; set; }
 
         public string? Comments { get; set; }
 

@@ -16,12 +16,12 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/provinces")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProvincesController : CustomBaseController<ProvinceDS> // Notice <ProvinceDS> here
+    public class ProvincesController : CustomBaseController<Province> // Notice <ProvinceDS> here
     {
-        private readonly IProvinceDSRepository _provinceRepository; // Servicio que contiene la lógica principal de negocio para Provinces.
+        private readonly IProvinceRepository _provinceRepository; // Servicio que contiene la lógica principal de negocio para Provinces.
         private readonly ContextDB _dbContext;
 
-        public ProvincesController(ILogger<ProvincesController> logger, IMapper mapper, IProvinceDSRepository workerRepository, ContextDB dbContext)
+        public ProvincesController(ILogger<ProvincesController> logger, IMapper mapper, IProvinceRepository workerRepository, ContextDB dbContext)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
@@ -34,14 +34,14 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("GetProvince")]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            var includes = new List<IncludePropertyConfiguration<ProvinceDS>>
+            var includes = new List<IncludePropertyConfiguration<Province>>
             {
-                    new IncludePropertyConfiguration<ProvinceDS>
+                    new IncludePropertyConfiguration<Province>
                     {
-                        IncludeExpression = b => b.CountryDS
+                        IncludeExpression = b => b.Country
                     },
                 };
-            return await Get<ProvinceDS, ProvinceDSDTO>(paginationDTO: paginationDTO, includes: includes);
+            return await Get<Province, ProvinceDTO>(paginationDTO: paginationDTO, includes: includes);
         }
 
         [HttpGet("all")]
@@ -49,7 +49,7 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> All()
         {
             var provinces = await _provinceRepository.GetAll();
-            _response.Result = _mapper.Map<List<ProvinceDSDTO>>(provinces);
+            _response.Result = _mapper.Map<List<ProvinceDTO>>(provinces);
             _response.StatusCode = HttpStatusCode.OK;
             return _response;
         }
@@ -57,14 +57,14 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/Provinces/1
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
-            return await Get<ProvinceDS, ProvinceDSDTO>();
+            return await Get<Province, ProvinceDTO>();
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
-            return await Delete<ProvinceDS>(id);
+            return await Delete<Province>(id);
         }
 
         [HttpPut("{id:int}")]
@@ -72,14 +72,14 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] ProvinceDSCreateDTO workerCreateDTO)
         {
             workerCreateDTO.Name = Utils.ToCamelCase(workerCreateDTO.Name);
-            return await Put<ProvinceDSCreateDTO, ProvinceDSDTO, ProvinceDS>(id, workerCreateDTO);
+            return await Put<ProvinceDSCreateDTO, ProvinceDTO, Province>(id, workerCreateDTO);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ProvinceDSPatchDTO> patchDto)
         {
-            return await Patch<ProvinceDS, ProvinceDSPatchDTO>(id, patchDto);
+            return await Patch<Province, ProvinceDSPatchDTO>(id, patchDto);
         }
 
         #endregion
@@ -110,27 +110,27 @@ namespace BuildyBackend.UI.Controllers.V1
                     return BadRequest(ModelState);
                 }
 
-                var country = await _dbContext.CountryDS.FindAsync(provinceCreateDto.CountryDSId);
+                var country = await _dbContext.Country.FindAsync(provinceCreateDto.CountryId);
                 if (country == null)
                 {
-                    _logger.LogError($"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema." };
+                    _logger.LogError($"El país ID={provinceCreateDto.CountryId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
                 provinceCreateDto.Name = Utils.ToCamelCase(provinceCreateDto.Name);
-                ProvinceDS modelo = _mapper.Map<ProvinceDS>(provinceCreateDto);
-                modelo.CountryDS = country; // Asigna el objeto CountryDS resuelto
+                Province modelo = _mapper.Map<Province>(provinceCreateDto);
+                modelo.Country = country; // Asigna el objeto Country resuelto
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
                 await _provinceRepository.Create(modelo);
                 _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-                _response.Result = _mapper.Map<ProvinceDSDTO>(modelo);
+                _response.Result = _mapper.Map<ProvinceDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetProvinceById

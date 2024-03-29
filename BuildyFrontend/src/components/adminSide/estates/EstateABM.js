@@ -71,11 +71,11 @@ const EstateABM = () => {
   const countryList = useSelector((state) => state.generalData.countryList);
   const ownerList = useSelector((state) => state.generalData.ownerList);
 
-  const defaultCityId = estate?.cityDS?.id || null;
+  const defaultCityId = estate?.City?.id || null;
   const defaultCity = cityList.find((city) => city.id === defaultCityId);
   const [ddlSelectedCity, setDdlSelectedCity] = useState(defaultCity || null);
 
-  const defaultOwnerId = estate?.ownerDS?.id || null;
+  const defaultOwnerId = estate?.Owner?.id || null;
   const defaultOwner = ownerList.find((owner) => owner.id === defaultOwnerId);
   const [ddlSelectedOwner, setDdlSelectedOwner] = useState(
     defaultOwner || null
@@ -192,8 +192,8 @@ const EstateABM = () => {
       Name: estateName,
       Address: estateAddress,
       Comments: estateComments,
-      CityDSId: ddlSelectedCity.id,
-      OwnerDSId: ddlSelectedOwner.id,
+      CityId: ddlSelectedCity.id,
+      OwnerId: ddlSelectedOwner.id,
       LatLong:
         latLonResult && latLonResult.found
           ? `${latLonResult.lat},${latLonResult.lon}`
@@ -250,7 +250,7 @@ const EstateABM = () => {
       );
       if (selectedProvince) {
         const selectedCountry = countryList.find(
-          (c) => c.id === selectedProvince.countryDSId
+          (c) => c.id === selectedProvince.CountryId
         );
         if (selectedCountry) {
           countrycode = selectedCountry.nominatimCountryCode;

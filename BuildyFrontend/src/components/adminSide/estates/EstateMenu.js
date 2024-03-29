@@ -10,10 +10,17 @@ import {
   CPagination,
   CPaginationItem,
   CPopover,
+  CModal,
+  CModalBody,
+  CModalHeader,
+  CModalTitle,
+  CButton,
+  CModalFooter,
 } from "@coreui/react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faPrint,
   faPlus,
   faRefresh,
   faEye,
@@ -34,6 +41,11 @@ import {
   fetchTenantList,
 } from "../../../store/generalData-actions";
 
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 import "./EstateMenu.css";
 
 const EstateMenu = () => {
@@ -41,6 +53,7 @@ const EstateMenu = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEstate, setSelectedEstate] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -152,6 +165,14 @@ const EstateMenu = () => {
     setTimeout(() => {
       navigate("/estate-abm");
     }, 200); // Asegúrate de que este tiempo coincida o sea ligeramente mayor que la duración de tu animación
+  };
+
+  const printHandler = () => {
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
   };
 
   const updateHandler = () => {
@@ -390,14 +411,14 @@ const EstateMenu = () => {
             />
           </button>
           <CPopover
-            content={estate.ownerDS?.name || "N/A"}
+            content={estate.Owner?.name || "N/A"}
             placement="top"
             trigger={["hover", "focus"]}
           >
             <button style={{ border: "none", background: "none" }}>
               <FontAwesomeIcon
                 icon={faInfoCircle}
-                color={estate.ownerDS?.color || "lightgray"}
+                color={estate.Owner?.color || "lightgray"}
               />
             </button>
           </CPopover>
@@ -447,6 +468,95 @@ const EstateMenu = () => {
     }).format(number);
   };
 
+  const formatDate = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = `${d.getMonth() + 1}`.padStart(2, "0"); // Los meses comienzan desde 0
+    const day = `${d.getDate()}`.padStart(2, "0");
+    return `${year}${month}${day}`;
+  };
+
+  // Función para exportar a PDF
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    // Suponiendo que 'estateList' es tu lista de objetos a exportar
+    const tableColumn = [
+      "ID",
+      "Nombre",
+      "Dirección",
+      "Inquilino",
+      "Valor Mensual",
+      "Comentarios",
+    ]; // Asegúrate de ajustar estos encabezados
+    const tableRows = estateList.map((estate) => [
+      estate.id,
+      estate.name,
+      estate.address,
+      estate.tenantName, // Asumiendo que esto se calcula o se extrae previamente
+      estate.monthlyValue,
+      estate.comments,
+      // Excluyendo intencionadamente la columna "Opciones"
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+
+    const dateStr = formatDate(); // Utiliza la función formatDate que proporcioné anteriormente
+    doc.save(`buildy_${dateStr}.pdf`);
+  };
+
+  // Función para exportar a CSV
+  const exportCSV = () => {
+    const header = ["ID,Nombre,Dirección,Inquilino,Valor Mensual,Comentarios"]; // Ajusta estos encabezados según sea necesario
+    const rows = estateList.map((estate) =>
+      [
+        estate.id,
+        estate.name,
+        estate.address,
+        estate.tenantName, // Asumiendo que esto se calcula o se extrae previamente
+        estate.monthlyValue,
+        estate.comments,
+        // Excluyendo la columna "Opciones"
+      ].join(",")
+    );
+
+    const csvContent = [header, ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const dateStr = formatDate(); // Utiliza la función formatDate que proporcioné anteriormente
+    saveAs(blob, `buildy_${dateStr}.csv`);
+  };
+
+  // Función para exportar a XLSX
+  const exportXLSX = () => {
+    // Crear un nuevo libro de trabajo
+    const wb = XLSX.utils.book_new();
+
+    // Convertir datos a hoja de trabajo (asumiendo que estateList es tu lista de datos)
+    const dataForExport = estateList.map(
+      ({ id, name, address, tenantName, monthlyValue, comments }) => ({
+        ID: id,
+        Nombre: name,
+        Dirección: address,
+        Inquilino: tenantName,
+        "Valor Mensual": monthlyValue,
+        Comentarios: comments,
+      })
+    );
+
+    const ws = XLSX.utils.json_to_sheet(dataForExport);
+
+    // Añadir la hoja de trabajo al libro con un nombre específico
+    XLSX.utils.book_append_sheet(wb, ws, "Propiedades");
+
+    // Generar un nombre de archivo con la fecha actual
+    const dateStr = formatDate(); // Utiliza la función formatDate
+    XLSX.writeFile(wb, `buildy_${dateStr}.xlsx`);
+  };
+
   //#endregion Functions ***********************************
 
   //#region Events ***********************************
@@ -466,6 +576,12 @@ const EstateMenu = () => {
           >
             Panel de propiedades
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={printHandler}
+                style={{ border: "none", background: "none", margin: "2px" }}
+              >
+                <FontAwesomeIcon icon={faPrint} color="#697588" />
+              </button>
               <CFormInput
                 type="text"
                 placeholder="Buscar..."
@@ -492,7 +608,7 @@ const EstateMenu = () => {
         <CCardBody>
           <CRow>
             <div className="custom-table-responsive">
-              <CTable striped>
+              <CTable striped id="dataTable">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -564,6 +680,29 @@ const EstateMenu = () => {
           </CPagination>
         </CCardBody>
       </CCard>
+
+      <CModal visible={showModal} onClose={handleClose}>
+        <CModalHeader>
+          <CModalTitle>Descargar datos</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p>Elige el formato para descargar la tabla:</p>
+          <CButton color="primary" onClick={exportPDF} className="me-2">
+            PDF
+          </CButton>
+          <CButton color="success" onClick={exportCSV} className="me-2">
+            CSV
+          </CButton>
+          <CButton color="warning" onClick={exportXLSX}>
+            XLSX
+          </CButton>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={handleClose}>
+            Cerrar
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </>
   );
 };

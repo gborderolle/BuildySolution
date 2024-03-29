@@ -1,6 +1,6 @@
 ﻿namespace BuildyBackend.Core.DTO
 {
-    public class ProvinceDSDTO
+    public class ProvinceDTO
     {
         #region Internal
 
@@ -14,7 +14,7 @@
 
         #region External
 
-        public int CountryDSId { get; set; }
+        public int CountryId { get; set; }
 
         #endregion
 

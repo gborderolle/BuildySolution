@@ -4,7 +4,7 @@ using BuildyBackend.Infrastructure.DbContext;
 
 namespace BuildyBackend.Infrastructure.Repositories
 {
-    public class ProvinceDSRepository : Repository<ProvinceDS>, IProvinceDSRepository
+    public class ProvinceDSRepository : Repository<Province>, IProvinceRepository
     {
         private readonly ContextDB _dbContext;
 
@@ -13,7 +13,7 @@ namespace BuildyBackend.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ProvinceDS> Update(ProvinceDS entity)
+        public async Task<Province> Update(Province entity)
         {
             entity.Update = DateTime.Now;
             _dbContext.Update(entity);
@@ -21,7 +21,7 @@ namespace BuildyBackend.Infrastructure.Repositories
             return entity;
         }
 
-        public IQueryable<ProvinceDS> GetAllQueryable()
+        public IQueryable<Province> GetAllQueryable()
         {
             return dbSet.AsQueryable();
         }

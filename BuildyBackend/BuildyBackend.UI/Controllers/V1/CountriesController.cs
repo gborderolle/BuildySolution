@@ -15,11 +15,11 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/countries")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CountriesController : CustomBaseController<CountryDS> // Notice <CountryDS> here
+    public class CountriesController : CustomBaseController<Country> // Notice <Country> here
     {
-        private readonly ICountryDSRepository _countryRepository; // Servicio que contiene la lógica principal de negocio para CountriesDS.
+        private readonly ICountryRepository _countryRepository; // Servicio que contiene la lógica principal de negocio para CountriesDS.
 
-        public CountriesController(ILogger<CountriesController> logger, IMapper mapper, ICountryDSRepository countryRepository)
+        public CountriesController(ILogger<CountriesController> logger, IMapper mapper, ICountryRepository countryRepository)
         : base(mapper, logger, countryRepository)
         {
             _response = new();
@@ -31,7 +31,7 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("GetCountry")]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            return await Get<CountryDS, CountryDSDTO>(paginationDTO: paginationDTO);
+            return await Get<Country, CountryDTO>(paginationDTO: paginationDTO);
         }
 
         [HttpGet("all")]
@@ -39,7 +39,7 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> All()
         {
             var countries = await _countryRepository.GetAll();
-            _response.Result = _mapper.Map<List<CountryDSDTO>>(countries);
+            _response.Result = _mapper.Map<List<CountryDTO>>(countries);
             _response.StatusCode = HttpStatusCode.OK;
             return _response;
         }
@@ -47,29 +47,29 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/CountriesDS/1
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
-            return await Get<CountryDS, CountryDSDTO>();
+            return await Get<Country, CountryDTO>();
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
-            return await Delete<CountryDS>(id);
+            return await Delete<Country>(id);
         }
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CountryDSCreateDTO countryCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CountryCreateDTO countryCreateDTO)
         {
             countryCreateDTO.Name = Utils.ToCamelCase(countryCreateDTO.Name);
-            return await Put<CountryDSCreateDTO, CountryDSDTO, CountryDS>(id, countryCreateDTO);
+            return await Put<CountryCreateDTO, CountryDTO, Country>(id, countryCreateDTO);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CountryDSPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CountryPatchDTO> patchDto)
         {
-            return await Patch<CountryDS, CountryDSPatchDTO>(id, patchDto);
+            return await Patch<Country, CountryPatchDTO>(id, patchDto);
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateCountry")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] CountryDSCreateDTO countryCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO countryCreateDto)
         {
             try
             {
@@ -101,17 +101,17 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 countryCreateDto.Name = Utils.ToCamelCase(countryCreateDto.Name);
-                CountryDS modelo = _mapper.Map<CountryDS>(countryCreateDto);
+                Country modelo = _mapper.Map<Country>(countryCreateDto);
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
                 await _countryRepository.Create(modelo);
                 _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-                _response.Result = _mapper.Map<CountryDSDTO>(modelo);
+                _response.Result = _mapper.Map<CountryDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryDSById
+                // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
                 return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
             }

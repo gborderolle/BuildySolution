@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BuildyBackend.Core.Domain.Entities
 {
-    public class CityDS : IId
+    public class Province : IId
     {
         #region Internal
 
@@ -19,16 +19,15 @@ namespace BuildyBackend.Core.Domain.Entities
 
         public DateTime Update { get; set; } = DateTime.Now;
 
+        public string NominatimProvinceCode { get; set; }
+
         #endregion
 
         #region External
 
-        public int ProvinceDSId { get; set; }
-        public ProvinceDS ProvinceDS { get; set; }
-
-        public string NominatimCityCode { get; set; }
+        public int CountryId { get; set; }
+        public Country Country { get; set; }
 
         #endregion
-
     }
 }

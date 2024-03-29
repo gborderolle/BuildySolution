@@ -4,16 +4,16 @@ using BuildyBackend.Infrastructure.DbContext;
 
 namespace BuildyBackend.Infrastructure.Repositories
 {
-    public class CityDSRepository : Repository<CityDS>, ICityDSRepository
+    public class CityRepository : Repository<City>, ICityRepository
     {
         private readonly ContextDB _dbContext;
 
-        public CityDSRepository(ContextDB dbContext) : base(dbContext)
+        public CityRepository(ContextDB dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<CityDS> Update(CityDS entity)
+        public async Task<City> Update(City entity)
         {
             entity.Update = DateTime.Now;
             _dbContext.Update(entity);
@@ -21,7 +21,7 @@ namespace BuildyBackend.Infrastructure.Repositories
             return entity;
         }
 
-        public IQueryable<CityDS> GetAllQueryable()
+        public IQueryable<City> GetAllQueryable()
         {
             return dbSet.AsQueryable();
         }

@@ -25,7 +25,7 @@ namespace BuildyBackend.Core.DTO
 
         #region External
 
-        public int CountryDSId { get; set; }
+        public int CountryId { get; set; }
 
         #endregion
 

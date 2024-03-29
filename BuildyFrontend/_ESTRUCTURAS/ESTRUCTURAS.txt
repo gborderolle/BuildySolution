@@ -261,9 +261,9 @@ namespace Buildyv2.Models
         public string Phone2 { get; set; }
 
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string IdentityDocument { get; set; }
+        public string? IdentityDocument { get; set; }
 
         public string? Comments { get; set; }
 
@@ -304,9 +304,9 @@ namespace Buildyv2.Models
         public string Phone { get; set; }
 
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string IdentityDocument { get; set; }
+        public string? IdentityDocument { get; set; }
 
         public string? Comments { get; set; }
 

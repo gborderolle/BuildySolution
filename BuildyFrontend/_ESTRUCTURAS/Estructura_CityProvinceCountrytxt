@@ -2,7 +2,7 @@ Estructura y relaciones de City, Province y Country (ciudad, departamento y paí
 Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
 
 
-public class CityDS : IId
+public class City : IId
 {
   #region Internal
 
@@ -23,7 +23,7 @@ public class CityDS : IId
 
   #region External
 
-  public int ProvinceDSId { get; set; }
+  public int ProvinceId { get; set; }
   public ProvinceDS ProvinceDS { get; set; }
 
   public string NominatimCityCode { get; set; }
@@ -31,7 +31,7 @@ public class CityDS : IId
   #endregion
 
 }
-public class CityDSDTO
+public class CityDTO
 {
   #region Internal
 
@@ -44,12 +44,12 @@ public class CityDSDTO
 
   #region External
 
-  public int ProvinceDSId { get; set; }
+  public int ProvinceId { get; set; }
 
   #endregion
 }
 
-public class CityDSCreateDTO
+public class CityCreateDTO
 {
   #region Internal
 
@@ -71,7 +71,7 @@ public class CityDSCreateDTO
 
   #region External
 
-  public int ProvinceDSId { get; set; }
+  public int ProvinceId { get; set; }
 
   #endregion
 
@@ -99,13 +99,13 @@ public class ProvinceDS : IId
 
   #region External
 
-  public int CountryDSId { get; set; }
-  public CountryDS CountryDS { get; set; }
+  public int CountryId { get; set; }
+  public Country Country { get; set; }
 
   #endregion
 }
 
-public class ProvinceDSDTO
+public class ProvinceDTO
 {
   #region Internal
 
@@ -119,7 +119,7 @@ public class ProvinceDSDTO
 
   #region External
 
-  public int CountryDSId { get; set; }
+  public int CountryId { get; set; }
 
   #endregion
 
@@ -147,13 +147,13 @@ public class ProvinceDSCreateDTO
 
   #region External
 
-  public int CountryDSId { get; set; }
+  public int CountryId { get; set; }
 
   #endregion
 
 }
 
-public class CountryDS : IId
+public class Country : IId
 {
   #region Internal
 
@@ -178,7 +178,7 @@ public class CountryDS : IId
 
   #endregion
 }
-public class CountryDSDTO
+public class CountryDTO
 {
   #region Internal
 
@@ -196,7 +196,7 @@ public class CountryDSDTO
 
 }
 
-public class CountryDSCreateDTO
+public class CountryCreateDTO
 {
   #region Internal
 
@@ -225,7 +225,7 @@ public class CountryDSCreateDTO
 
 [HttpPost(Name = "CreateCity")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-public async Task<ActionResult<APIResponse>> Post([FromBody] CityDSCreateDTO cityCreateDto)
+public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityCreateDto)
 {
   try
   {
@@ -258,15 +258,15 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityDSCreateDTO cit
       return BadRequest(ModelState);
     }
 
-    CityDS modelo = _mapper.Map<CityDS>(cityCreateDto);
-    modelo.ProvinceDS = province; // Asigna el objeto CountryDS resuelto
+    City modelo = _mapper.Map<City>(cityCreateDto);
+    modelo.ProvinceDS = province; // Asigna el objeto Country resuelto
     modelo.Creation = DateTime.Now;
     modelo.Update = DateTime.Now;
 
     await _cityRepository.Create(modelo);
     _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-    _response.Result = _mapper.Map<CityDSDTO>(modelo);
+    _response.Result = _mapper.Map<CityDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
 
     // CreatedAtRoute -> Nombre de la ruta (del método): GetCityById
@@ -307,26 +307,26 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
       return BadRequest(ModelState);
     }
 
-    var country = await _dbContext.CountryDS.FindAsync(provinceCreateDto.CountryDSId);
+    var country = await _dbContext.Country.FindAsync(provinceCreateDto.CountryId);
     if (country == null)
     {
-      _logger.LogError($"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema." };
+      _logger.LogError($"El país ID={provinceCreateDto.CountryId} no existe en el sistema");
+      _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
-      ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryDSId} no existe en el sistema.");
+      ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryId} no existe en el sistema.");
       return BadRequest(ModelState);
     }
 
     ProvinceDS modelo = _mapper.Map<ProvinceDS>(provinceCreateDto);
-    modelo.CountryDS = country; // Asigna el objeto CountryDS resuelto
+    modelo.Country = country; // Asigna el objeto Country resuelto
     modelo.Creation = DateTime.Now;
     modelo.Update = DateTime.Now;
 
     await _provinceRepository.Create(modelo);
     _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-    _response.Result = _mapper.Map<ProvinceDSDTO>(modelo);
+    _response.Result = _mapper.Map<ProvinceDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
 
     // CreatedAtRoute -> Nombre de la ruta (del método): GetProvinceById
@@ -345,7 +345,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
 
 [HttpPost(Name = "CreateCountry")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-public async Task<ActionResult<APIResponse>> Post([FromBody] CountryDSCreateDTO countryCreateDto)
+public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO countryCreateDto)
 {
   try
   {
@@ -367,17 +367,17 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CountryDSCreateDTO 
       return BadRequest(ModelState);
     }
 
-    CountryDS modelo = _mapper.Map<CountryDS>(countryCreateDto);
+    Country modelo = _mapper.Map<Country>(countryCreateDto);
     modelo.Creation = DateTime.Now;
     modelo.Update = DateTime.Now;
 
     await _countryRepository.Create(modelo);
     _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-    _response.Result = _mapper.Map<CountryDSDTO>(modelo);
+    _response.Result = _mapper.Map<CountryDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
 
-    // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryDSById
+    // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
     // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
     return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
   }

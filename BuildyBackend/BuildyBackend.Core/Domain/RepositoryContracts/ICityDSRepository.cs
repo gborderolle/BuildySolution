@@ -2,11 +2,11 @@
 
 namespace BuildyBackend.Core.Domain.RepositoryContracts
 {
-    public interface ICityDSRepository : IRepository<CityDS>
+    public interface ICityRepository : IRepository<City>
     {
-        Task<CityDS> Update(CityDS entity);
+        Task<City> Update(City entity);
 
-        IQueryable<CityDS> GetAllQueryable();
+        IQueryable<City> GetAllQueryable();
     }
 }
 

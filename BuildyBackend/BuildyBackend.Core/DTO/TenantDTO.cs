@@ -14,11 +14,11 @@
 
         public string Phone1 { get; set; }
 
-        public string Phone2 { get; set; }
+        public string? Phone2 { get; set; }
 
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string IdentityDocument { get; set; }
+        public string? IdentityDocument { get; set; }
 
         public string? Comments { get; set; }
 

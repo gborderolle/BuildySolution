@@ -221,7 +221,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _response.Result = _mapper.Map<TenantDTO>(tenant);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryDSById
+                // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
                 return CreatedAtAction(nameof(Get), new { id = tenant.Id }, _response);
             }

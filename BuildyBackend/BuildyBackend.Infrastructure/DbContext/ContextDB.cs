@@ -26,10 +26,10 @@ namespace BuildyBackend.Infrastructure.DbContext
         public DbSet<Report> Report { get; set; }
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Worker> Worker { get; set; }
-        public DbSet<CityDS> CityDS { get; set; }
-        public DbSet<ProvinceDS> ProvinceDS { get; set; }
-        public DbSet<CountryDS> CountryDS { get; set; }
-        public DbSet<OwnerDS> OwnerDS { get; set; }
+        public DbSet<City> City { get; set; }
+        public DbSet<Province> Province { get; set; }
+        public DbSet<Country> Country { get; set; }
+        public DbSet<Owner> Owner { get; set; }
         public DbSet<Log> Log { get; set; }
 
         #endregion
@@ -249,30 +249,30 @@ namespace BuildyBackend.Infrastructure.DbContext
 
         private void SeedEntities(ModelBuilder modelBuilder)
         {
-            var country1 = new CountryDS() { Id = 1, Name = "Uruguay", NominatimCountryCode = "UY" };
-            modelBuilder.Entity<CountryDS>().HasData(new List<CountryDS>
+            var country1 = new Country() { Id = 1, Name = "Uruguay", NominatimCountryCode = "UY" };
+            modelBuilder.Entity<Country>().HasData(new List<Country>
             {
                 country1
             });
 
-            var province1 = new ProvinceDS() { Id = 1, Name = "Cerro Largo", CountryDSId = 1, NominatimProvinceCode = "CL" };
-            var province2 = new ProvinceDS() { Id = 2, Name = "Montevideo", CountryDSId = 1, NominatimProvinceCode = "MO" };
-            modelBuilder.Entity<ProvinceDS>().HasData(new List<ProvinceDS>
+            var province1 = new Province() { Id = 1, Name = "Cerro Largo", CountryId = 1, NominatimProvinceCode = "CL" };
+            var province2 = new Province() { Id = 2, Name = "Montevideo", CountryId = 1, NominatimProvinceCode = "MO" };
+            modelBuilder.Entity<Province>().HasData(new List<Province>
             {
                 province1,province2
             });
 
-            var city1 = new CityDS { Id = 1, Name = "Melo", ProvinceDSId = 1, NominatimCityCode = "ME" };
-            var city2 = new CityDS() { Id = 2, Name = "Montevideo", ProvinceDSId = 2, NominatimCityCode = "MO" };
-            modelBuilder.Entity<CityDS>().HasData(new List<CityDS>
+            var city1 = new City { Id = 1, Name = "Melo", ProvinceId = 1, NominatimCityCode = "ME" };
+            var city2 = new City() { Id = 2, Name = "Montevideo", ProvinceId = 2, NominatimCityCode = "MO" };
+            modelBuilder.Entity<City>().HasData(new List<City>
             {
                 city1,city2
             });
 
-            var owner1 = new OwnerDS() { Id = 1, Name = "Mirta", Color = "violet" };
-            var owner2 = new OwnerDS() { Id = 2, Name = "Gladys", Color = "orange" };
-            var owner3 = new OwnerDS() { Id = 3, Name = "Cristina", Color = "green" };
-            modelBuilder.Entity<OwnerDS>().HasData(new List<OwnerDS>
+            var owner1 = new Owner() { Id = 1, Name = "Mirta", Color = "violet" };
+            var owner2 = new Owner() { Id = 2, Name = "Gladys", Color = "orange" };
+            var owner3 = new Owner() { Id = 3, Name = "Cristina", Color = "green" };
+            modelBuilder.Entity<Owner>().HasData(new List<Owner>
             {
                 owner1,owner2,owner3
             });
@@ -280,47 +280,47 @@ namespace BuildyBackend.Infrastructure.DbContext
             // Estates ****************
             // Calle Colón
 
-            var estateColon1 = new Estate() { Id = 1, Name = "Colón 476", Address = "Colón 476", CityDSId = 1, OwnerDSId = 3, LatLong = "-32.3674814,-54.1757085", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu" };
+            var estateColon1 = new Estate() { Id = 1, Name = "Colón 476", Address = "Colón 476", CityId = 1, OwnerId = 3, LatLong = "-32.3674814,-54.1757085", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu" };
 
-            var estateColon2 = new Estate() { Id = 2, Name = "Colón 480", Address = "Colón 480", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.3674762,-54.1755751", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+480,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674762,-54.1755751,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b0c5f12b:0xaf5b5ba2ea4eb1cb!8m2!3d-32.3674762!4d-54.1729948!16s%2Fg%2F11rz98nq5_?hl=es-419&entry=ttu" };
+            var estateColon2 = new Estate() { Id = 2, Name = "Colón 480", Address = "Colón 480", CityId = 1, OwnerId = 2, LatLong = "-32.3674762,-54.1755751", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+480,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674762,-54.1755751,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b0c5f12b:0xaf5b5ba2ea4eb1cb!8m2!3d-32.3674762!4d-54.1729948!16s%2Fg%2F11rz98nq5_?hl=es-419&entry=ttu" };
 
-            var estateColon3 = new Estate() { Id = 3, Name = "Colón 491", Address = "Colón 491", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.367241,-54.1754153", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+491,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.367241,-54.1754153,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b180e29b:0x95542a9eb2345b16!8m2!3d-32.367241!4d-54.172835!16s%2Fg%2F11fctc9z9z?hl=es-419&entry=ttu" };
+            var estateColon3 = new Estate() { Id = 3, Name = "Colón 491", Address = "Colón 491", CityId = 1, OwnerId = 2, LatLong = "-32.367241,-54.1754153", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+491,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.367241,-54.1754153,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b180e29b:0x95542a9eb2345b16!8m2!3d-32.367241!4d-54.172835!16s%2Fg%2F11fctc9z9z?hl=es-419&entry=ttu" };
 
-            var estateColon4 = new Estate() { Id = 4, Name = "Colón 495", Address = "Colón 495", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.3672195,-54.1755857", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+495,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672195,-54.1755857,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b3f659db:0xf3c82a67cd3ebe76!8m2!3d-32.3672195!4d-54.1730054!16s%2Fg%2F11gmz50cjj?hl=es-419&entry=ttu" };
+            var estateColon4 = new Estate() { Id = 4, Name = "Colón 495", Address = "Colón 495", CityId = 1, OwnerId = 2, LatLong = "-32.3672195,-54.1755857", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+495,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672195,-54.1755857,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b3f659db:0xf3c82a67cd3ebe76!8m2!3d-32.3672195!4d-54.1730054!16s%2Fg%2F11gmz50cjj?hl=es-419&entry=ttu" };
 
-            var estateColon5 = new Estate() { Id = 5, Name = "Colón 503", Address = "Colón 503", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.3672809,-54.1751337", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+503,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672809,-54.1751337,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980a659bd3f:0x1f64283da64670a9!8m2!3d-32.3672809!4d-54.1725534?hl=es-419&entry=ttu" };
+            var estateColon5 = new Estate() { Id = 5, Name = "Colón 503", Address = "Colón 503", CityId = 1, OwnerId = 2, LatLong = "-32.3672809,-54.1751337", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+503,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672809,-54.1751337,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980a659bd3f:0x1f64283da64670a9!8m2!3d-32.3672809!4d-54.1725534?hl=es-419&entry=ttu" };
 
             // Calle Darío Silva
 
-            var estateDario1 = new Estate() { Id = 6, Name = "Darío Silva 774", Address = "Darío Silva 774", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3679807,-54.1752022", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu" };
+            var estateDario1 = new Estate() { Id = 6, Name = "Darío Silva 774", Address = "Darío Silva 774", CityId = 1, OwnerId = 1, LatLong = "-32.3679807,-54.1752022", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu" };
 
-            var estateDario2 = new Estate() { Id = 7, Name = "Darío Silva 774 BIS", Address = "Darío Silva 774 BIS", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3679807,-54.1752022", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu" };
+            var estateDario2 = new Estate() { Id = 7, Name = "Darío Silva 774 BIS", Address = "Darío Silva 774 BIS", CityId = 1, OwnerId = 1, LatLong = "-32.3679807,-54.1752022", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu" };
 
-            var estateDario3 = new Estate() { Id = 8, Name = "Darío Silva 781", Address = "Darío Silva 781", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3675191,-54.1753876", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+781,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675191,-54.1753876,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b076246d:0x1b122d0ac3c1dbc7!8m2!3d-32.3675191!4d-54.1728073!16s%2Fg%2F11g194j1tj?hl=es-419&entry=ttu" };
+            var estateDario3 = new Estate() { Id = 8, Name = "Darío Silva 781", Address = "Darío Silva 781", CityId = 1, OwnerId = 1, LatLong = "-32.3675191,-54.1753876", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+781,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675191,-54.1753876,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b076246d:0x1b122d0ac3c1dbc7!8m2!3d-32.3675191!4d-54.1728073!16s%2Fg%2F11g194j1tj?hl=es-419&entry=ttu" };
 
-            var estateDario4 = new Estate() { Id = 9, Name = "Darío Silva 785", Address = "Darío Silva 785", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.3676402,-54.1754579", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+785,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676402,-54.1754579,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba5f73d1:0x186b45d8ed124b2a!8m2!3d-32.3676402!4d-54.1728776!16s%2Fg%2F11sb62lb6c?hl=es-419&entry=ttu" };
+            var estateDario4 = new Estate() { Id = 9, Name = "Darío Silva 785", Address = "Darío Silva 785", CityId = 1, OwnerId = 2, LatLong = "-32.3676402,-54.1754579", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+785,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676402,-54.1754579,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba5f73d1:0x186b45d8ed124b2a!8m2!3d-32.3676402!4d-54.1728776!16s%2Fg%2F11sb62lb6c?hl=es-419&entry=ttu" };
 
-            var estateDario5 = new Estate() { Id = 10, Name = "Darío Silva 789", Address = "Darío Silva 789", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3676919,-54.1754685", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+789,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676919,-54.1754685,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba535f25:0xbdc6468d3ed51cc1!8m2!3d-32.3676919!4d-54.1728882!16s%2Fg%2F11syz1ryh9?hl=es-419&entry=ttu" };
+            var estateDario5 = new Estate() { Id = 10, Name = "Darío Silva 789", Address = "Darío Silva 789", CityId = 1, OwnerId = 1, LatLong = "-32.3676919,-54.1754685", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+789,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676919,-54.1754685,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba535f25:0xbdc6468d3ed51cc1!8m2!3d-32.3676919!4d-54.1728882!16s%2Fg%2F11syz1ryh9?hl=es-419&entry=ttu" };
 
-            var estateDario6 = new Estate() { Id = 11, Name = "Darío Silva 793", Address = "Darío Silva 793", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3675108,-54.1754001", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+793,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675108,-54.1754001,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b079be31:0xa19a7a3d822a0595!8m2!3d-32.3675108!4d-54.1728198!16s%2Fg%2F11h_c4rxz9?hl=es-419&entry=ttu" };
+            var estateDario6 = new Estate() { Id = 11, Name = "Darío Silva 793", Address = "Darío Silva 793", CityId = 1, OwnerId = 1, LatLong = "-32.3675108,-54.1754001", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+793,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675108,-54.1754001,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b079be31:0xa19a7a3d822a0595!8m2!3d-32.3675108!4d-54.1728198!16s%2Fg%2F11h_c4rxz9?hl=es-419&entry=ttu" };
 
-            var estateDario7 = new Estate() { Id = 12, Name = "Darío Silva 801", Address = "Darío Silva 801", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3673741,-54.1752804", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+801,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673741,-54.1752804,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x3da437edd983606!8m2!3d-32.3673741!4d-54.1727001?hl=es-419&entry=ttu" };
+            var estateDario7 = new Estate() { Id = 12, Name = "Darío Silva 801", Address = "Darío Silva 801", CityId = 1, OwnerId = 1, LatLong = "-32.3673741,-54.1752804", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+801,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673741,-54.1752804,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x3da437edd983606!8m2!3d-32.3673741!4d-54.1727001?hl=es-419&entry=ttu" };
 
-            var estateDario8 = new Estate() { Id = 13, Name = "Darío Silva 803", Address = "Darío Silva 803", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3673108,-54.1755231", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+803,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673108,-54.1755231,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x24b5f3fc904ac228!8m2!3d-32.3673108!4d-54.1729428?hl=es-419&entry=ttu" };
+            var estateDario8 = new Estate() { Id = 13, Name = "Darío Silva 803", Address = "Darío Silva 803", CityId = 1, OwnerId = 1, LatLong = "-32.3673108,-54.1755231", GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+803,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673108,-54.1755231,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x24b5f3fc904ac228!8m2!3d-32.3673108!4d-54.1729428?hl=es-419&entry=ttu" };
 
-            var estateDario9 = new Estate() { Id = 14, Name = "Darío Silva Cochera", Address = "Darío Silva Cochera", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3674814,-54.1757085", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu" };
+            var estateDario9 = new Estate() { Id = 14, Name = "Darío Silva Cochera", Address = "Darío Silva Cochera", CityId = 1, OwnerId = 1, LatLong = "-32.3674814,-54.1757085", GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu" };
 
             // Otros
 
-            var estateOtros1 = new Estate() { Id = 15, Name = "Treinta y Tres 299", Address = "Treinta y Tres 299", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3765821,-54.1703877", GoogleMapsURL = "https://www.google.com/maps/place/Treinta+y+Tres+299,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3765821,-54.1703877,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd6c1beccc3:0xb91b3165ec6107e3!8m2!3d-32.3765821!4d-54.1678074!16s%2Fg%2F11gmz7h_cl?hl=es-419&entry=ttu" };
+            var estateOtros1 = new Estate() { Id = 15, Name = "Treinta y Tres 299", Address = "Treinta y Tres 299", CityId = 1, OwnerId = 1, LatLong = "-32.3765821,-54.1703877", GoogleMapsURL = "https://www.google.com/maps/place/Treinta+y+Tres+299,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3765821,-54.1703877,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd6c1beccc3:0xb91b3165ec6107e3!8m2!3d-32.3765821!4d-54.1678074!16s%2Fg%2F11gmz7h_cl?hl=es-419&entry=ttu" };
 
-            var estateOtros2 = new Estate() { Id = 16, Name = "Manuel Oribe 788", Address = "Manuel Oribe 788", CityDSId = 1, OwnerDSId = 1, LatLong = "-32.3764414,-54.1706063", GoogleMapsURL = "https://www.google.com/maps/place/C.+Gral.+Manuel+Oribe+788,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3764414,-54.1706063,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd69533354f:0xd6a6a68977288372!8m2!3d-32.3764414!4d-54.168026!16s%2Fg%2F11h57sb583?hl=es-419&entry=ttu" };
+            var estateOtros2 = new Estate() { Id = 16, Name = "Manuel Oribe 788", Address = "Manuel Oribe 788", CityId = 1, OwnerId = 1, LatLong = "-32.3764414,-54.1706063", GoogleMapsURL = "https://www.google.com/maps/place/C.+Gral.+Manuel+Oribe+788,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3764414,-54.1706063,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd69533354f:0xd6a6a68977288372!8m2!3d-32.3764414!4d-54.168026!16s%2Fg%2F11h57sb583?hl=es-419&entry=ttu" };
 
-            var estateOtros3 = new Estate() { Id = 17, Name = "Rincón Artigas 702", Address = "Rincón Artigas 702", CityDSId = 1, OwnerDSId = 2, LatLong = "-32.3690096,-54.176412", GoogleMapsURL = "https://www.google.com/maps/place/Dr+Rincon+Artigas+702,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3690096,-54.176412,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ee49a557:0xfbaefe3d055f9ab9!8m2!3d-32.3690096!4d-54.1738317!16s%2Fg%2F11h_c4zxvw?hl=es-419&entry=ttu" };
+            var estateOtros3 = new Estate() { Id = 17, Name = "Rincón Artigas 702", Address = "Rincón Artigas 702", CityId = 1, OwnerId = 2, LatLong = "-32.3690096,-54.176412", GoogleMapsURL = "https://www.google.com/maps/place/Dr+Rincon+Artigas+702,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3690096,-54.176412,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ee49a557:0xfbaefe3d055f9ab9!8m2!3d-32.3690096!4d-54.1738317!16s%2Fg%2F11h_c4zxvw?hl=es-419&entry=ttu" };
 
             // Montevideo
 
-            var estateMontevideo1 = new Estate() { Id = 18, Name = "Maldonado 1106", Address = "Maldonado 1106", CityDSId = 2, OwnerDSId = 1, LatLong = "-34.9097969,-56.1945273", GoogleMapsURL = "https://www.google.com/maps/place/Maldonado+1106,+11100+Montevideo,+Departamento+de+Montevideo/@-34.9097969,-56.1945273,17z/data=!3m1!4b1!4m6!3m5!1s0x959f81c066a6fb4d:0xdb3d1d7d172a0f4c!8m2!3d-34.9097969!4d-56.191947!16s%2Fg%2F11fhvn7njf?hl=es-419&entry=ttu" };
+            var estateMontevideo1 = new Estate() { Id = 18, Name = "Maldonado 1106", Address = "Maldonado 1106", CityId = 2, OwnerId = 1, LatLong = "-34.9097969,-56.1945273", GoogleMapsURL = "https://www.google.com/maps/place/Maldonado+1106,+11100+Montevideo,+Departamento+de+Montevideo/@-34.9097969,-56.1945273,17z/data=!3m1!4b1!4m6!3m5!1s0x959f81c066a6fb4d:0xdb3d1d7d172a0f4c!8m2!3d-34.9097969!4d-56.191947!16s%2Fg%2F11fhvn7njf?hl=es-419&entry=ttu" };
 
             modelBuilder.Entity<Estate>().HasData(
                estateColon1, estateColon2, estateColon3, estateColon4, estateColon5, estateDario1, estateDario2, estateDario3, estateDario4, estateDario5, estateDario6, estateDario7, estateDario8, estateDario9, estateOtros1, estateOtros2, estateOtros3, estateMontevideo1

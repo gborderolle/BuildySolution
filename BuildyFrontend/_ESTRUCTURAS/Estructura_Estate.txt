@@ -36,8 +36,8 @@ public class Estate : IId
 
     #region External
 
-    public CityDS CityDS { get; set; }
-        public OwnerDS OwnerDS { get; set; }
+    public City City { get; set; }
+        public Owner Owner { get; set; }
 
     public List<Report> ListReports { get; set; } = new();
 
@@ -79,8 +79,8 @@ public class Estate : IId
 
         #region External
 
-        public CityDS CityDS { get; set; }
-        public OwnerDS OwnerDS { get; set; }
+        public City City { get; set; }
+        public Owner Owner { get; set; }
 
         public List<Report> ListReports { get; set; } = new();
 
@@ -111,9 +111,9 @@ public class Estate : IId
     public string Address { get; set; }
     public string LatLong { get; set; }
     [Required(ErrorMessage = "El campo {0} es requerido")]
-    public int CityDSId { get; set; }
+    public int CityId { get; set; }
     [Required(ErrorMessage = "El campo {0} es requerido")]
-    public int OwnerDSId { get; set; }
+    public int OwnerId { get; set; }
     [Required(ErrorMessage = "El campo {0} es requerido")]
     public string GoogleMapsURL { get; set; }
     public bool EstateIsRented { get; set; }
@@ -153,7 +153,7 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
         {
                 new IncludePropertyConfiguration<Estate>
                 {
-                    IncludeExpression = b => b.CityDS
+                    IncludeExpression = b => b.City
                 },
                 new IncludePropertyConfiguration<Estate>
                 {
@@ -189,7 +189,7 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
         {
              new IncludePropertyConfiguration<Estate>
                 {
-                    IncludeExpression = b => b.CityDS
+                    IncludeExpression = b => b.City
                 },
                 new IncludePropertyConfiguration<Estate>
                 {
@@ -256,19 +256,19 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
                     return BadRequest(ModelState);
                 }
 
-                var city = await _dbContext.CityDS.FindAsync(estateCreateDto.CityDSId);
+                var city = await _dbContext.City.FindAsync(estateCreateDto.CityId);
                 if (city == null)
                 {
-                    _logger.LogError($"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema." };
+                    _logger.LogError($"La ciudad ID={estateCreateDto.CityId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
                 Estate modelo = _mapper.Map<Estate>(estateCreateDto);
-                modelo.CityDS = city; // Asigna el objeto CountryDS resuelto
+                modelo.City = city; // Asigna el objeto Country resuelto
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 

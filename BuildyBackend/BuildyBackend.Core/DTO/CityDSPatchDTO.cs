@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuildyBackend.Core.DTO
 {
-    public class CityDSPatchDTO
+    public class CityPatchDTO
     {
         #region Internal
 
@@ -23,7 +23,7 @@ namespace BuildyBackend.Core.DTO
 
         #region External
 
-        public int ProvinceDSId { get; set; }
+        public int ProvinceId { get; set; }
 
         #endregion
 

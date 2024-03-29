@@ -5,7 +5,7 @@ using BuildyBackend.Core.Domain.Entities;
 
 namespace BuildyBackend.Core.DTO
 {
-    public class OwnerDSPatchDTO
+    public class OwnerPatchDTO
     {
         #region Internal
 

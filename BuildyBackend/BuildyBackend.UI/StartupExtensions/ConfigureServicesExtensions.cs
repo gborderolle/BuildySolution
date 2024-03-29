@@ -36,7 +36,7 @@ public static class ConfigureServicesExtensions
             {
                 Title = "Buildy 3.0",
                 Version = "v1",
-                Description = "Inteligencia Artificial analítica para optimizar y procesar la información electoral en tiempo real.",
+                Description = "Con Buildy, los usuarios pueden realizar diversas tareas relacionadas con la administración de propiedades de manera centralizada.",
                 TermsOfService = new Uri("https://buildy.uy/terms"),
                 Contact = new OpenApiContact
                 {
@@ -92,10 +92,10 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IWorkerRepository, WorkerRepository>();
-        services.AddScoped<ICountryDSRepository, CountryDSRepository>();
-        services.AddScoped<IProvinceDSRepository, ProvinceDSRepository>();
-        services.AddScoped<ICityDSRepository, CityDSRepository>();
-        services.AddScoped<IOwnerDSRepository, OwnerDSRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IProvinceRepository, ProvinceDSRepository>();
+        services.AddScoped<ICityRepository, CityRepository>();
+        services.AddScoped<IOwnerRepository, OwnerRepository>();
         services.AddScoped<ILogService, LogService>();
 
         services.AddScoped<ICountryResolver, CountryResolver>();

@@ -12,7 +12,7 @@ const Footer = ({ isMobileDevice = false }) => {
         fontSize: isMobileDevice ? "12px" : "16px",
       }}
     >
-      Buildy v.3.0 - © {new Date().getFullYear()} Todos los derechos reservados.
+      Buildy v3.0 - © {new Date().getFullYear()} Todos los derechos reservados.
     </div>
   );
 };

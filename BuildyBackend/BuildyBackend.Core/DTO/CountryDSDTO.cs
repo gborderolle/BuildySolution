@@ -1,6 +1,6 @@
 ﻿namespace BuildyBackend.Core.DTO
 {
-    public class CountryDSDTO
+    public class CountryDTO
     {
         #region Internal
 

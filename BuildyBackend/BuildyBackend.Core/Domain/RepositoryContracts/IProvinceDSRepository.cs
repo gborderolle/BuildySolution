@@ -2,11 +2,11 @@
 
 namespace BuildyBackend.Core.Domain.RepositoryContracts
 {
-    public interface IProvinceDSRepository : IRepository<ProvinceDS>
+    public interface IProvinceRepository : IRepository<Province>
     {
-        Task<ProvinceDS> Update(ProvinceDS entity);
+        Task<Province> Update(Province entity);
 
-        IQueryable<ProvinceDS> GetAllQueryable();
+        IQueryable<Province> GetAllQueryable();
     }
 }
 

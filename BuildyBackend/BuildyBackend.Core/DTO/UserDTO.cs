@@ -7,7 +7,7 @@
     /// </summary>
     public class UserDTO
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuildyBackend.Core.Domain.Entities
 {
-    public class CountryDS : IId
+    public class City : IId
     {
         #region Internal
 
@@ -19,12 +19,16 @@ namespace BuildyBackend.Core.Domain.Entities
 
         public DateTime Update { get; set; } = DateTime.Now;
 
-        public string NominatimCountryCode { get; set; }
-
         #endregion
 
         #region External
 
+        public int ProvinceId { get; set; }
+        public Province Province { get; set; }
+
+        public string NominatimCityCode { get; set; }
+
         #endregion
+
     }
 }

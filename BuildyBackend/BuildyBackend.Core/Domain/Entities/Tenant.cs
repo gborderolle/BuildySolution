@@ -22,12 +22,12 @@ namespace BuildyBackend.Core.Domain.Entities
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Phone1 { get; set; }
 
-        public string Phone2 { get; set; }
+        public string? Phone2 { get; set; }
 
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string IdentityDocument { get; set; }
+        public string? IdentityDocument { get; set; }
 
         public string? Comments { get; set; }
 

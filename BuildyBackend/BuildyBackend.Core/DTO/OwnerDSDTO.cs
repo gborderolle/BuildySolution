@@ -1,6 +1,6 @@
 namespace BuildyBackend.Core.DTO
 {
-    public class OwnerDSDTO
+    public class OwnerDTO
     {
         #region Internal
 

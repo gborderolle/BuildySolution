@@ -5,7 +5,7 @@ namespace BuildyBackend.Infrastructure.Services
 {
     public interface ICountryResolver
     {
-        CountryDS ResolveCountry(int countryDSId);
+        Country ResolveCountry(int CountryId);
     }
 
     public class CountryResolver : ICountryResolver
@@ -17,9 +17,9 @@ namespace BuildyBackend.Infrastructure.Services
             _context = context;
         }
 
-        public CountryDS ResolveCountry(int countryDSId)
+        public Country ResolveCountry(int CountryId)
         {
-            return _context.CountryDS.FirstOrDefault(c => c.Id == countryDSId);
+            return _context.Country.FirstOrDefault(c => c.Id == CountryId);
         }
     }
 

@@ -16,12 +16,12 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/cities")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CitiesController : CustomBaseController<CityDS> // Notice <CityDS> here
+    public class CitiesController : CustomBaseController<City> // Notice <City> here
     {
-        private readonly ICityDSRepository _cityRepository; // Servicio que contiene la lógica principal de negocio para Cities.
+        private readonly ICityRepository _cityRepository; // Servicio que contiene la lógica principal de negocio para Cities.
         private readonly ContextDB _dbContext;
 
-        public CitiesController(ILogger<CitiesController> logger, IMapper mapper, ICityDSRepository workerRepository, ContextDB dbContext)
+        public CitiesController(ILogger<CitiesController> logger, IMapper mapper, ICityRepository workerRepository, ContextDB dbContext)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
@@ -36,14 +36,14 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("GetCity")]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            var includes = new List<IncludePropertyConfiguration<CityDS>>
+            var includes = new List<IncludePropertyConfiguration<City>>
             {
-                    new IncludePropertyConfiguration<CityDS>
+                    new IncludePropertyConfiguration<City>
                     {
-                        IncludeExpression = b => b.ProvinceDS
+                        IncludeExpression = b => b.Province
                     },
                 };
-            return await Get<CityDS, CityDSDTO>(paginationDTO: paginationDTO, includes: includes);
+            return await Get<City, CityDTO>(paginationDTO: paginationDTO, includes: includes);
         }
 
         [HttpGet("all")]
@@ -51,7 +51,7 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> All()
         {
             var workers = await _cityRepository.GetAll();
-            _response.Result = _mapper.Map<List<CityDSDTO>>(workers);
+            _response.Result = _mapper.Map<List<CityDTO>>(workers);
             _response.StatusCode = HttpStatusCode.OK;
             return _response;
         }
@@ -60,36 +60,36 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
             // n..1
-            var includes = new List<IncludePropertyConfiguration<CityDS>>
+            var includes = new List<IncludePropertyConfiguration<City>>
             {
-                    new IncludePropertyConfiguration<CityDS>
+                    new IncludePropertyConfiguration<City>
                     {
-                        IncludeExpression = b => b.ProvinceDS
+                        IncludeExpression = b => b.Province
                     },
                 };
-            return await Get<CityDS, CityDSDTO>(includes: includes);
+            return await Get<City, CityDTO>(includes: includes);
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
-            return await Delete<CityDS>(id);
+            return await Delete<City>(id);
         }
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CityDSCreateDTO workerCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CityCreateDTO workerCreateDTO)
         {
             workerCreateDTO.Name = Utils.ToCamelCase(workerCreateDTO.Name);
-            return await Put<CityDSCreateDTO, CityDSDTO, CityDS>(id, workerCreateDTO);
+            return await Put<CityCreateDTO, CityDTO, City>(id, workerCreateDTO);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CityDSPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CityPatchDTO> patchDto)
         {
-            return await Patch<CityDS, CityDSPatchDTO>(id, patchDto);
+            return await Patch<City, CityPatchDTO>(id, patchDto);
         }
 
         #endregion
@@ -98,7 +98,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateCity")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] CityDSCreateDTO cityCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityCreateDto)
         {
             try
             {
@@ -120,27 +120,27 @@ namespace BuildyBackend.UI.Controllers.V1
                     return BadRequest(ModelState);
                 }
 
-                var province = await _dbContext.ProvinceDS.FindAsync(cityCreateDto.ProvinceDSId);
+                var province = await _dbContext.Province.FindAsync(cityCreateDto.ProvinceId);
                 if (province == null)
                 {
-                    _logger.LogError($"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema." };
+                    _logger.LogError($"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
                 cityCreateDto.Name = Utils.ToCamelCase(cityCreateDto.Name);
-                CityDS modelo = _mapper.Map<CityDS>(cityCreateDto);
-                modelo.ProvinceDS = province; // Asigna el objeto CountryDS resuelto
+                City modelo = _mapper.Map<City>(cityCreateDto);
+                modelo.Province = province; // Asigna el objeto Country resuelto
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
                 await _cityRepository.Create(modelo);
                 _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-                _response.Result = _mapper.Map<CityDSDTO>(modelo);
+                _response.Result = _mapper.Map<CityDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetCityById

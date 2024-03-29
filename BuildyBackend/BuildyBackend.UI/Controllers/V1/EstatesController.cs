@@ -56,11 +56,11 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                     new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.CityDS
+                        IncludeExpression = b => b.City
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.OwnerDS
+                        IncludeExpression = b => b.Owner
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
@@ -111,11 +111,11 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                  new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.CityDS
+                        IncludeExpression = b => b.City
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.OwnerDS
+                        IncludeExpression = b => b.Owner
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
@@ -278,11 +278,11 @@ namespace BuildyBackend.UI.Controllers.V1
                 {
                  new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.CityDS
+                        IncludeExpression = b => b.City
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
-                        IncludeExpression = b => b.OwnerDS
+                        IncludeExpression = b => b.Owner
                     },
                     new IncludePropertyConfiguration<Estate>
                     {
@@ -312,8 +312,8 @@ namespace BuildyBackend.UI.Controllers.V1
                 estate.Comments = Utils.ToCamelCase(estateCreateDto.Comments);
                 estate.LatLong = estateCreateDto.LatLong;
                 estate.GoogleMapsURL = estateCreateDto.GoogleMapsURL;
-                estate.CityDS = await _dbContext.CityDS.FindAsync(estateCreateDto.CityDSId);
-                estate.OwnerDS = await _dbContext.OwnerDS.FindAsync(estateCreateDto.OwnerDSId);
+                estate.City = await _dbContext.City.FindAsync(estateCreateDto.CityId);
+                estate.Owner = await _dbContext.Owner.FindAsync(estateCreateDto.OwnerId);
                 estate.Comments = estateCreateDto.Comments;
                 estate.Update = DateTime.Now;
 
@@ -370,24 +370,24 @@ namespace BuildyBackend.UI.Controllers.V1
                     return BadRequest(ModelState);
                 }
 
-                var city = await _dbContext.CityDS.FindAsync(estateCreateDto.CityDSId);
+                var city = await _dbContext.City.FindAsync(estateCreateDto.CityId);
                 if (city == null)
                 {
-                    _logger.LogError($"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema." };
+                    _logger.LogError($"La ciudad ID={estateCreateDto.CityId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityDSId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
-                var owner = await _dbContext.OwnerDS.FindAsync(estateCreateDto.OwnerDSId);
+                var owner = await _dbContext.Owner.FindAsync(estateCreateDto.OwnerId);
                 if (owner == null)
                 {
-                    _logger.LogError($"La ciudad ID={estateCreateDto.OwnerDSId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El dueño ID={estateCreateDto.OwnerDSId} no existe en el sistema." };
+                    _logger.LogError($"La ciudad ID={estateCreateDto.OwnerId} no existe en el sistema");
+                    _response.ErrorMessages = new List<string> { $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El dueño ID={estateCreateDto.OwnerDSId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
@@ -395,8 +395,8 @@ namespace BuildyBackend.UI.Controllers.V1
                 estateCreateDto.Address = Utils.ToCamelCase(estateCreateDto.Address);
                 estateCreateDto.Comments = Utils.ToCamelCase(estateCreateDto.Comments);
                 Estate estate = _mapper.Map<Estate>(estateCreateDto);
-                estate.CityDS = city;
-                estate.OwnerDS = owner;
+                estate.City = city;
+                estate.Owner = owner;
                 estate.Creation = DateTime.Now;
                 estate.Update = DateTime.Now;
 

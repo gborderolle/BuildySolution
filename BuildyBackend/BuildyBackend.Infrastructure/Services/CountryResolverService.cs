@@ -4,7 +4,7 @@ using BuildyBackend.Core.DTO;
 
 namespace BuildyBackend.Infrastructure.Services
 {
-    public class CountryResolverService : IValueResolver<ProvinceDSCreateDTO, ProvinceDS, CountryDS>
+    public class CountryResolverService : IValueResolver<ProvinceDSCreateDTO, Province, Country>
     {
         private readonly ICountryResolver _countryResolver;
 
@@ -13,9 +13,9 @@ namespace BuildyBackend.Infrastructure.Services
             _countryResolver = countryResolver;
         }
 
-        public CountryDS Resolve(ProvinceDSCreateDTO source, ProvinceDS destination, CountryDS destMember, ResolutionContext context)
+        public Country Resolve(ProvinceDSCreateDTO source, Province destination, Country destMember, ResolutionContext context)
         {
-            return _countryResolver.ResolveCountry(source.CountryDSId);
+            return _countryResolver.ResolveCountry(source.CountryId);
         }
     }
 }

@@ -110,7 +110,7 @@ const ProvinceTable = (props) => {
 
   const combinedProvinceList = useMemo(() => {
     return provinceList.map((province) => {
-      const country = countryList.find((c) => c.id === province.countryDSId);
+      const country = countryList.find((c) => c.id === province.CountryId);
       return {
         ...province,
         countryName: country ? country.name : "No definido",
@@ -167,7 +167,7 @@ const ProvinceTable = (props) => {
       inputReset2(province.nominatimProvinceCode);
 
       // Busca el departamento (province) correspondiente y lo establece como seleccionado
-      const country = countryList.find((p) => p.id === province.countryDSId);
+      const country = countryList.find((p) => p.id === province.CountryId);
       if (country) {
         setDdlSelectedCountry(country);
       } else {
@@ -231,7 +231,7 @@ const ProvinceTable = (props) => {
     const dataToUpload = {
       Name: provinceName,
       NominatimProvinceCode: nominatimCode,
-      CountryDSId: ddlSelectedCountry.id,
+      CountryId: ddlSelectedCountry.id,
     };
 
     try {
@@ -308,7 +308,7 @@ const ProvinceTable = (props) => {
         <CTableBody>
           {sortedList.map((province, index) => {
             const country = countryList.find(
-              (countryItem) => countryItem.id === province.countryDSId
+              (countryItem) => countryItem.id === province.CountryId
             );
             const countryName = country ? country.name : "No definido";
 

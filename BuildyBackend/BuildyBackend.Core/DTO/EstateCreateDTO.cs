@@ -19,9 +19,9 @@ namespace BuildyBackend.Core.DTO
         public string Address { get; set; }
         public string LatLong { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public int CityDSId { get; set; }
+        public int CityId { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public int OwnerDSId { get; set; }
+        public int OwnerId { get; set; }
         public string GoogleMapsURL { get; set; }
         public bool EstateIsRented { get; set; }
         public string? Comments { get; set; }

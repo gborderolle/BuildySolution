@@ -4,16 +4,16 @@ using BuildyBackend.Infrastructure.DbContext;
 
 namespace BuildyBackend.Infrastructure.Repositories
 {
-    public class OwnerDSRepository : Repository<OwnerDS>, IOwnerDSRepository
+    public class OwnerRepository : Repository<Owner>, IOwnerRepository
     {
         private readonly ContextDB _dbContext;
 
-        public OwnerDSRepository(ContextDB dbContext) : base(dbContext)
+        public OwnerRepository(ContextDB dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<OwnerDS> Update(OwnerDS entity)
+        public async Task<Owner> Update(Owner entity)
         {
             entity.Update = DateTime.Now;
             _dbContext.Update(entity);
@@ -21,7 +21,7 @@ namespace BuildyBackend.Infrastructure.Repositories
             return entity;
         }
 
-        public IQueryable<OwnerDS> GetAllQueryable()
+        public IQueryable<Owner> GetAllQueryable()
         {
             return dbSet.AsQueryable();
         }

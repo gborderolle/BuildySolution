@@ -2,11 +2,11 @@
 
 namespace BuildyBackend.Core.Domain.RepositoryContracts
 {
-    public interface ICountryDSRepository : IRepository<CountryDS>
+    public interface ICountryRepository : IRepository<Country>
     {
-        Task<CountryDS> Update(CountryDS entity);
+        Task<Country> Update(Country entity);
 
-        IQueryable<CountryDS> GetAllQueryable();
+        IQueryable<Country> GetAllQueryable();
     }
 }
 

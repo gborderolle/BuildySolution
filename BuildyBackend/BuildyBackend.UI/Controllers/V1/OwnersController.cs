@@ -15,11 +15,11 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/owners")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class OwnersController : CustomBaseController<OwnerDS> // Notice <OwnerDS> here
+    public class OwnersController : CustomBaseController<Owner> // Notice <Owner> here
     {
-        private readonly IOwnerDSRepository _ownerRepository; // Servicio que contiene la lógica principal de negocio para ownersDS.
+        private readonly IOwnerRepository _ownerRepository; // Servicio que contiene la lógica principal de negocio para ownersDS.
 
-        public OwnersController(ILogger<OwnersController> logger, IMapper mapper, IOwnerDSRepository ownerRepository)
+        public OwnersController(ILogger<OwnersController> logger, IMapper mapper, IOwnerRepository ownerRepository)
         : base(mapper, logger, ownerRepository)
         {
             _response = new();
@@ -31,7 +31,7 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("GetOwner")]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            return await Get<OwnerDS, OwnerDSDTO>(paginationDTO: paginationDTO);
+            return await Get<Owner, OwnerDTO>(paginationDTO: paginationDTO);
         }
 
         [HttpGet("all")]
@@ -39,7 +39,7 @@ namespace BuildyBackend.UI.Controllers.V1
         public async Task<ActionResult<APIResponse>> All()
         {
             var owners = await _ownerRepository.GetAll();
-            _response.Result = _mapper.Map<List<OwnerDSDTO>>(owners);
+            _response.Result = _mapper.Map<List<OwnerDTO>>(owners);
             _response.StatusCode = HttpStatusCode.OK;
             return _response;
         }
@@ -47,29 +47,29 @@ namespace BuildyBackend.UI.Controllers.V1
         [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/ownersDS/1
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
-            return await Get<OwnerDS, OwnerDSDTO>();
+            return await Get<Owner, OwnerDTO>();
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
-            return await Delete<OwnerDS>(id);
+            return await Delete<Owner>(id);
         }
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] OwnerDSCreateDTO ownerCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] OwnerCreateDTO ownerCreateDTO)
         {
             ownerCreateDTO.Name = Utils.ToCamelCase(ownerCreateDTO.Name);
-            return await Put<OwnerDSCreateDTO, OwnerDSDTO, OwnerDS>(id, ownerCreateDTO);
+            return await Put<OwnerCreateDTO, OwnerDTO, Owner>(id, ownerCreateDTO);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<OwnerDSPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<OwnerPatchDTO> patchDto)
         {
-            return await Patch<OwnerDS, OwnerDSPatchDTO>(id, patchDto);
+            return await Patch<Owner, OwnerPatchDTO>(id, patchDto);
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateOwner")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] OwnerDSCreateDTO ownerCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] OwnerCreateDTO ownerCreateDto)
         {
             try
             {
@@ -101,17 +101,17 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 ownerCreateDto.Name = Utils.ToCamelCase(ownerCreateDto.Name);
-                OwnerDS modelo = _mapper.Map<OwnerDS>(ownerCreateDto);
+                Owner modelo = _mapper.Map<Owner>(ownerCreateDto);
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
                 await _ownerRepository.Create(modelo);
                 _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
 
-                _response.Result = _mapper.Map<OwnerDSDTO>(modelo);
+                _response.Result = _mapper.Map<OwnerDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                // CreatedAtRoute -> Nombre de la ruta (del método): GetOwnerDSById
+                // CreatedAtRoute -> Nombre de la ruta (del método): GetOwnerById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
                 return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
             }

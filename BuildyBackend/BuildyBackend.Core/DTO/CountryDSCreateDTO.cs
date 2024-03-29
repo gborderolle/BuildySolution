@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuildyBackend.Core.DTO
 {
-    public class CountryDSCreateDTO
+    public class CountryCreateDTO
     {
         #region Internal
 
@@ -18,7 +18,7 @@ namespace BuildyBackend.Core.DTO
         public DateTime Creation { get; set; } = DateTime.Now;
 
         public DateTime Update { get; set; } = DateTime.Now;
-       
+
         public string NominatimCountryCode { get; set; }
 
         #endregion

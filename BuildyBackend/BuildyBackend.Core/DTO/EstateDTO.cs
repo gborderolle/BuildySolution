@@ -31,9 +31,9 @@ namespace BuildyBackend.Core.DTO
 
         #region External
 
-        public CityDS CityDS { get; set; }
+        public City City { get; set; }
 
-        public OwnerDS OwnerDS { get; set; }
+        public Owner Owner { get; set; }
 
         public List<Report> ListReports { get; set; } = new();
 

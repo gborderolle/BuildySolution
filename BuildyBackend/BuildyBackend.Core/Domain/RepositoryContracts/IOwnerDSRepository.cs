@@ -2,11 +2,11 @@ using BuildyBackend.Core.Domain.Entities;
 
 namespace BuildyBackend.Core.Domain.RepositoryContracts
 {
-    public interface IOwnerDSRepository : IRepository<OwnerDS>
+    public interface IOwnerRepository : IRepository<Owner>
     {
-        Task<OwnerDS> Update(OwnerDS entity);
+        Task<Owner> Update(Owner entity);
 
-        IQueryable<OwnerDS> GetAllQueryable();
+        IQueryable<Owner> GetAllQueryable();
     }
 }
 

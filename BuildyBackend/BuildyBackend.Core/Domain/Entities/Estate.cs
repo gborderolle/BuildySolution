@@ -35,11 +35,11 @@ namespace BuildyBackend.Core.Domain.Entities
 
         #region External
 
-        public int CityDSId { get; set; }
-        public CityDS CityDS { get; set; }
+        public int CityId { get; set; }
+        public City City { get; set; }
 
-        public int OwnerDSId { get; set; }
-        public OwnerDS OwnerDS { get; set; }
+        public int OwnerId { get; set; }
+        public Owner Owner { get; set; }
 
         public List<Report> ListReports { get; set; } = new();
 
