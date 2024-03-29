@@ -6,10 +6,6 @@ import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { loginHandler } from "../../../store/auth-actions";
 import { authActions } from "../../../store/auth-slice";
-import {
-  urlAccountBiometricChallenge,
-  urlAccountBiometricValidate,
-} from "../../../endpoints";
 
 import {
   CButton,
@@ -32,6 +28,8 @@ import { cilLockLocked, cilUser } from "@coreui/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
+import LoginFooter from "./LoginFooter";
 
 import logo from "src/assets/images/Buildyv2-h.png";
 import { sygnet } from "src/assets/brand/sygnet";
@@ -106,11 +104,6 @@ const Login = () => {
     isValid: false,
   });
 
-  const [emailState, dispatchEmail] = useReducer(emailReducer, {
-    value: "",
-    isValid: false,
-  });
-
   const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
     value: "",
     isValid: false,
@@ -160,7 +153,6 @@ const Login = () => {
     setIsLoggingIn(true); // Activar el spinner
     dispatch(
       loginHandler(
-        // emailState.value,
         usernameState.value, // Usar username en lugar de email
         passwordState.value,
         navigate,
@@ -268,6 +260,7 @@ const Login = () => {
                 </motion.div>
               </CCard>
             </CCardGroup>
+            <LoginFooter isMobileDevice={isMobileDevice} />
           </CCol>
         </CRow>
       </CContainer>
