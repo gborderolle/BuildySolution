@@ -90,7 +90,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -109,7 +109,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -132,7 +132,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -157,7 +157,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -178,7 +178,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -199,7 +199,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -255,7 +255,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -307,7 +307,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -347,7 +347,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -363,7 +363,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages = new List<string> { "El rol ya existe." };
+                    _response.ErrorMessages = new() { "El rol ya existe." };
                     return BadRequest(_response);
                 }
 
@@ -391,7 +391,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
                 return StatusCode(500, _response);
             }
             return Ok(_response);
@@ -429,7 +429,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }

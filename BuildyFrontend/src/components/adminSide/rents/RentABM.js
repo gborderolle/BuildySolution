@@ -21,9 +21,17 @@ import {
   CDropdownItem,
   CDropdownToggle,
   CDropdownMenu,
+  CModal,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
 } from "@coreui/react";
 import useInput from "../../../hooks/use-input";
 import useAPI from "../../../hooks/use-API";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileSignature } from "@fortawesome/free-solid-svg-icons";
 
 // redux imports
 import { useSelector, useDispatch } from "react-redux";
@@ -74,6 +82,8 @@ const RentABM = () => {
 
   const [inputWarrant, setInputWarrant] = useState(rent?.warrant || "");
   const [inputHasErrorWarrant, setInputHasErrorWarrant] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
 
   // redux
   const dispatch = useDispatch();
@@ -273,6 +283,14 @@ const RentABM = () => {
 
   //#region Functions ***********************************
 
+  const generateContractHandler = () => {
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+  };
+
   // Esta función se llama cuando se cargan nuevos archivos
   const handleFileUpload = (newFiles) => {
     setLoadedFiles((currentFiles) => [
@@ -342,319 +360,351 @@ const RentABM = () => {
   //#endregion Functions ***********************************
 
   return (
-    <CRow>
-      <CCol xs>
-        <CForm onSubmit={formSubmitHandler}>
-          <CCard>
-            <CCardBody>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
-                }}
-              >
-                <div>
-                  <CCardTitle>
-                    {editMode
-                      ? `Modificar el alquiler de propiedad: `
-                      : `Agregar alquiler a propiedad: `}
-                    <span style={{ color: "blue" }}>{estate?.name}</span>
-                  </CCardTitle>
-                </div>
-                {editMode && rent && rent.id && (
-                  <CButton
-                    color="danger"
-                    size="sm"
-                    onClick={handleDelete}
-                    style={{ marginLeft: "auto" }}
-                  >
-                    Eliminar
-                  </CButton>
-                )}
-              </div>
-              <br />
-              <CInputGroup>
+    <>
+      <CRow>
+        <CCol xs>
+          <CForm onSubmit={formSubmitHandler}>
+            <CCard>
+              <CCardBody>
                 <div
                   style={{
                     display: "flex",
+                    justifyContent: "space-between",
                     alignItems: "center",
                     width: "100%",
                   }}
                 >
-                  <CInputGroupText className="cardItem custom-input-group-text">
-                    Inquilino
-                  </CInputGroupText>
-                  <CDropdown>
-                    <CDropdownToggle id="ddlTenant" color="secondary">
-                      {ddlSelectedTenant
-                        ? ddlSelectedTenant.name
-                        : "Seleccionar"}
-                    </CDropdownToggle>
-                    <CDropdownMenu>
-                      {tenantList &&
-                        tenantList.length > 0 &&
-                        tenantList.map((tenant) => (
-                          <CDropdownItem
-                            key={tenant.id}
-                            onClick={() => handleSelectDdlTenant(tenant)}
-                            style={{ cursor: "pointer" }}
-                            value={tenant.id}
-                          >
-                            {tenant.id}: {tenant.name}
-                          </CDropdownItem>
-                        ))}
-                    </CDropdownMenu>
-                  </CDropdown>
-                  <CButton
-                    color="dark"
-                    style={{ marginLeft: "10px" }}
-                    onClick={() => navigateToTenant()}
-                  >
-                    Nuevo
-                  </CButton>
+                  <div>
+                    <CCardTitle>
+                      {editMode
+                        ? `Modificar el alquiler de propiedad: `
+                        : `Agregar alquiler a propiedad: `}
+                      <span style={{ color: "blue" }}>{estate?.name}</span>
+                    </CCardTitle>
+                  </div>
+                  {editMode && rent && rent.id && (
+                    <>
+                      <div style={{ float: "right" }}>
+                        <button
+                          onClick={generateContractHandler}
+                          style={{
+                            border: "none",
+                            background: "none",
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faFileSignature}
+                            color="#697588"
+                          />
+                        </button>
+                      </div>
+                      <CButton
+                        color="danger"
+                        size="sm"
+                        onClick={handleDelete}
+                        style={{ marginLeft: "auto" }}
+                      >
+                        Eliminar
+                      </CButton>
+                    </>
+                  )}
                 </div>
-                {inputHasErrorTenant && (
-                  <CAlert color="danger" className="w-100">
-                    Por favor, selecciona al menos un inquilino.
-                  </CAlert>
-                )}
-              </CInputGroup>
-              <br />
-              <CInputGroup>
-                <CInputGroupText className="cardItem custom-input-group-text">
-                  Garantía
-                </CInputGroupText>
-                <CFormInput
-                  type="text"
-                  className="cardItem"
-                  value={inputWarrant !== null ? inputWarrant : ""} // Usa una cadena vacía si inputWarrant es null
-                  onChange={(e) => {
-                    setInputWarrant(e.target.value);
-                    if (inputHasErrorWarrant) setInputHasErrorWarrant(false);
-                  }}
-                  style={{ flex: "1", borderColor: "violet" }} // Asegura que el input tome el máximo espacio posible
-                />
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginLeft: "10px", // Espaciar el checkbox del input
-                  }}
-                >
-                  <CFormCheck
-                    id="luc-checkbox"
-                    label="LUC"
-                    checked={inputWarrant === "LUC"}
-                    onChange={(event) =>
-                      event.target.checked
-                        ? setInputWarrant("LUC")
-                        : setInputWarrant("")
-                    }
-                  />
-                </div>
-              </CInputGroup>
-              {inputHasErrorWarrant && (
-                <CAlert color="danger" className="w-100">
-                  Por favor, ingrese la garantía.
-                </CAlert>
-              )}
-
-              <br />
-              <CInputGroup>
-                <CInputGroupText className="cardItem custom-input-group-text">
-                  Valor mensual $
-                </CInputGroupText>
-                <CFormInput
-                  type="number"
-                  step="0.01"
-                  className="cardItem"
-                  onChange={inputChangeHandlerMonthlyValue}
-                  onBlur={inputBlurHandlerMonthlyValue}
-                  value={monthlyValue}
-                  required
-                  style={requiredFieldStyle}
-                />
-                {inputHasErrorMonthlyValue && (
-                  <CAlert color="danger" className="w-100">
-                    Entrada inválida
-                  </CAlert>
-                )}
-              </CInputGroup>
-              <br />
-              <CInputGroup>
-                <CInputGroupText className="cardItem custom-input-group-text">
-                  Forma de pago
-                </CInputGroupText>
-                <CFormInput
-                  type="text"
-                  className="cardItem"
-                  onChange={inputChangeHandlerComments}
-                  onBlur={inputBlurHandlerComments}
-                  value={comments}
-                />
-                {inputHasErrorComments && (
-                  <CAlert color="danger" className="w-100">
-                    Entrada inválida
-                  </CAlert>
-                )}
-              </CInputGroup>
-              <br />
-              <CInputGroup>
-                <CInputGroupText>Fecha del inicio</CInputGroupText>
-                <DatePicker
-                  selected={month}
-                  onChange={(date) => setMonth(date)}
-                  dateFormat="MM/yyyy"
-                  showMonthYearPicker
-                  className="form-control"
-                />
-              </CInputGroup>
-              <br />
-              <CInputGroup>
-                <CInputGroupText className="cardItem custom-input-group-text">
-                  Duración (años)
-                </CInputGroupText>
-                <CFormInput
-                  type="number"
-                  className="cardItem"
-                  onChange={inputChangeHandlerDuration}
-                  onBlur={inputBlurHandlerDuration}
-                  value={duration}
-                />
-                {inputHasErrorDuration && (
-                  <CAlert color="danger" className="w-100">
-                    Entrada inválida
-                  </CAlert>
-                )}
-              </CInputGroup>
-              <br />
-              <FileUpload
-                multiple={true}
-                name="example-upload"
-                maxSize={5000000}
-                onUpload={handleFileUpload}
-                label="Subir contrato acá"
-              />
-              {editMode && (
-                <>
-                  <br />
-                  <div>{renderFilePreviews()}</div>
-                  <Modal
-                    appElement={document.getElementById("root")}
-                    isOpen={isModalOpen}
-                    onRequestClose={closeModal}
-                    contentLabel="Imagen Ampliada"
+                <br />
+                <CInputGroup>
+                  <div
                     style={{
-                      overlay: {
-                        zIndex: 1000, // Un valor alto para asegurar que esté por encima de todo
-                      },
-                      content: {
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center", // Centrar horizontalmente
-                        justifyContent: "center", // Centrar verticalmente (opcional)
-                        background: "white", // Fondo blanco
-                        padding: "20px", // Espaciado interno
-                        borderRadius: "10px", // Bordes redondeados
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Sombra para dar efecto de elevación
-                      },
+                      display: "flex",
+                      alignItems: "center",
+                      width: "100%",
                     }}
                   >
-                    <div
+                    <CInputGroupText className="cardItem custom-input-group-text">
+                      Inquilino
+                    </CInputGroupText>
+                    <CDropdown>
+                      <CDropdownToggle id="ddlTenant" color="secondary">
+                        {ddlSelectedTenant
+                          ? ddlSelectedTenant.name
+                          : "Seleccionar"}
+                      </CDropdownToggle>
+                      <CDropdownMenu>
+                        {tenantList &&
+                          tenantList.length > 0 &&
+                          tenantList.map((tenant) => (
+                            <CDropdownItem
+                              key={tenant.id}
+                              onClick={() => handleSelectDdlTenant(tenant)}
+                              style={{ cursor: "pointer" }}
+                              value={tenant.id}
+                            >
+                              {tenant.id}: {tenant.name}
+                            </CDropdownItem>
+                          ))}
+                      </CDropdownMenu>
+                    </CDropdown>
+                    <CButton
+                      color="dark"
+                      style={{ marginLeft: "10px" }}
+                      onClick={() => navigateToTenant()}
+                    >
+                      Nuevo
+                    </CButton>
+                  </div>
+                  {inputHasErrorTenant && (
+                    <CAlert color="danger" className="w-100">
+                      Por favor, selecciona al menos un inquilino.
+                    </CAlert>
+                  )}
+                </CInputGroup>
+                <br />
+                <CInputGroup>
+                  <CInputGroupText className="cardItem custom-input-group-text">
+                    Garantía
+                  </CInputGroupText>
+                  <CFormInput
+                    type="text"
+                    className="cardItem"
+                    value={inputWarrant !== null ? inputWarrant : ""} // Usa una cadena vacía si inputWarrant es null
+                    onChange={(e) => {
+                      setInputWarrant(e.target.value);
+                      if (inputHasErrorWarrant) setInputHasErrorWarrant(false);
+                    }}
+                    style={{ flex: "1", borderColor: "violet" }} // Asegura que el input tome el máximo espacio posible
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginLeft: "10px", // Espaciar el checkbox del input
+                    }}
+                  >
+                    <CFormCheck
+                      id="luc-checkbox"
+                      label="LUC"
+                      checked={inputWarrant === "LUC"}
+                      onChange={(event) =>
+                        event.target.checked
+                          ? setInputWarrant("LUC")
+                          : setInputWarrant("")
+                      }
+                    />
+                  </div>
+                </CInputGroup>
+                {inputHasErrorWarrant && (
+                  <CAlert color="danger" className="w-100">
+                    Por favor, ingrese la garantía.
+                  </CAlert>
+                )}
+
+                <br />
+                <CInputGroup>
+                  <CInputGroupText className="cardItem custom-input-group-text">
+                    Valor mensual $
+                  </CInputGroupText>
+                  <CFormInput
+                    type="number"
+                    step="0.01"
+                    className="cardItem"
+                    onChange={inputChangeHandlerMonthlyValue}
+                    onBlur={inputBlurHandlerMonthlyValue}
+                    value={monthlyValue}
+                    required
+                    style={requiredFieldStyle}
+                  />
+                  {inputHasErrorMonthlyValue && (
+                    <CAlert color="danger" className="w-100">
+                      Entrada inválida
+                    </CAlert>
+                  )}
+                </CInputGroup>
+                <br />
+                <CInputGroup>
+                  <CInputGroupText className="cardItem custom-input-group-text">
+                    Forma de pago
+                  </CInputGroupText>
+                  <CFormInput
+                    type="text"
+                    className="cardItem"
+                    onChange={inputChangeHandlerComments}
+                    onBlur={inputBlurHandlerComments}
+                    value={comments}
+                  />
+                  {inputHasErrorComments && (
+                    <CAlert color="danger" className="w-100">
+                      Entrada inválida
+                    </CAlert>
+                  )}
+                </CInputGroup>
+                <br />
+                <CInputGroup>
+                  <CInputGroupText>Fecha del inicio</CInputGroupText>
+                  <DatePicker
+                    selected={month}
+                    onChange={(date) => setMonth(date)}
+                    dateFormat="MM/yyyy"
+                    showMonthYearPicker
+                    className="form-control"
+                  />
+                </CInputGroup>
+                <br />
+                <CInputGroup>
+                  <CInputGroupText className="cardItem custom-input-group-text">
+                    Duración (años)
+                  </CInputGroupText>
+                  <CFormInput
+                    type="number"
+                    className="cardItem"
+                    onChange={inputChangeHandlerDuration}
+                    onBlur={inputBlurHandlerDuration}
+                    value={duration}
+                  />
+                  {inputHasErrorDuration && (
+                    <CAlert color="danger" className="w-100">
+                      Entrada inválida
+                    </CAlert>
+                  )}
+                </CInputGroup>
+                <br />
+                <FileUpload
+                  multiple={true}
+                  name="example-upload"
+                  maxSize={5000000}
+                  onUpload={handleFileUpload}
+                  label="Subir contrato acá"
+                />
+                {editMode && (
+                  <>
+                    <br />
+                    <div>{renderFilePreviews()}</div>
+                    <Modal
+                      appElement={document.getElementById("root")}
+                      isOpen={isModalOpen}
+                      onRequestClose={closeModal}
+                      contentLabel="Imagen Ampliada"
                       style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        overlay: {
+                          zIndex: 1000, // Un valor alto para asegurar que esté por encima de todo
+                        },
+                        content: {
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center", // Centrar horizontalmente
+                          justifyContent: "center", // Centrar verticalmente (opcional)
+                          background: "white", // Fondo blanco
+                          padding: "20px", // Espaciado interno
+                          borderRadius: "10px", // Bordes redondeados
+                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Sombra para dar efecto de elevación
+                        },
                       }}
                     >
                       <div
                         style={{
-                          border: "4px solid rgb(60 75 100)", // Un borde marrón oscuro para simular el marco
-                          padding: "5px", // Espacio entre el borde y la imagen
-                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)", // Sombra para dar efecto de profundidad
-                          margin: "20px", // Margen alrededor del marco
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <img
-                          src={selectedImage}
-                          alt="Imagen"
-                          style={{ width: "440px", marginTop: "60px" }}
-                        />
                         <div
                           style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            marginTop: "10px",
+                            border: "4px solid rgb(60 75 100)", // Un borde marrón oscuro para simular el marco
+                            padding: "5px", // Espacio entre el borde y la imagen
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)", // Sombra para dar efecto de profundidad
+                            margin: "20px", // Margen alrededor del marco
                           }}
                         >
-                          <a href={selectedImage} download>
+                          <img
+                            src={selectedImage}
+                            alt="Imagen"
+                            style={{ width: "440px", marginTop: "60px" }}
+                          />
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <a href={selectedImage} download>
+                              <CButton
+                                size="sm"
+                                color="secondary"
+                                style={{ marginRight: "10px" }}
+                              >
+                                Descargar
+                              </CButton>
+                            </a>
                             <CButton
                               size="sm"
                               color="secondary"
-                              style={{ marginRight: "10px" }}
+                              onClick={closeModal}
                             >
-                              Descargar
+                              Cerrar
                             </CButton>
-                          </a>
-                          <CButton
-                            size="sm"
-                            color="secondary"
-                            onClick={closeModal}
-                          >
-                            Cerrar
-                          </CButton>
+                          </div>
                         </div>
                       </div>
+                    </Modal>
+                  </>
+                )}
+                <br />
+                <CRow className="justify-content-center">
+                  {isLoading && (
+                    <div className="text-center">
+                      <CSpinner />
                     </div>
-                  </Modal>
-                </>
-              )}
-              <br />
-              <CRow className="justify-content-center">
-                {isLoading && (
-                  <div className="text-center">
-                    <CSpinner />
-                  </div>
-                )}
-              </CRow>
-              <CButton type="submit" color="dark">
-                Confirmar
-              </CButton>
-              <CButton
-                type="button"
-                color="secondary"
-                onClick={handleCancel}
-                style={{ marginLeft: "10px" }}
-              >
-                Cancelar
-              </CButton>
-              <br />
-              <br />
-              <CCardFooter className="text-medium-emphasis">
-                {!isValidForm && (
-                  <CAlert color="danger" className="w-100">
-                    El formulario no es válido
-                  </CAlert>
-                )}
-                {isSuccess && (
-                  <CAlert color="success" className="w-100">
-                    Datos ingresados correctamente
-                  </CAlert>
-                )}
-                {errorAPI && (
-                  <CAlert color="danger" className="w-100">
-                    {errorAPI}
-                  </CAlert>
-                )}
-              </CCardFooter>
-            </CCardBody>
-          </CCard>
-        </CForm>
-      </CCol>
-    </CRow>
+                  )}
+                </CRow>
+                <CButton type="submit" color="dark">
+                  Confirmar
+                </CButton>
+                <CButton
+                  type="button"
+                  color="secondary"
+                  onClick={handleCancel}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Cancelar
+                </CButton>
+                <br />
+                <br />
+                <CCardFooter className="text-medium-emphasis">
+                  {!isValidForm && (
+                    <CAlert color="danger" className="w-100">
+                      El formulario no es válido
+                    </CAlert>
+                  )}
+                  {isSuccess && (
+                    <CAlert color="success" className="w-100">
+                      Datos ingresados correctamente
+                    </CAlert>
+                  )}
+                  {errorAPI && (
+                    <CAlert color="danger" className="w-100">
+                      {errorAPI}
+                    </CAlert>
+                  )}
+                </CCardFooter>
+              </CCardBody>
+            </CCard>
+          </CForm>
+        </CCol>
+      </CRow>
+
+      <CModal visible={showModal} onClose={handleClose}>
+        <CModalHeader>
+          <CModalTitle>Descargar datos</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p>Elige el formato para descargar la tabla:</p>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={handleClose}>
+            Cerrar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
   );
 };
 

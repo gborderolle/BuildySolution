@@ -16,17 +16,15 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/cities")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CitiesController : CustomBaseController<City> // Notice <City> here
+    public class CitiesController : CustomBaseController<City>
     {
-        private readonly ICityRepository _cityRepository; // Servicio que contiene la lógica principal de negocio para Cities.
+        private readonly ICityRepository _cityRepository;
         private readonly ContextDB _dbContext;
 
         public CitiesController(ILogger<CitiesController> logger, IMapper mapper, ICityRepository workerRepository, ContextDB dbContext)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
-
-
             _cityRepository = workerRepository;
             _dbContext = dbContext;
         }
@@ -104,30 +102,30 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (await _cityRepository.Get(v => v.Name.ToLower() == cityCreateDto.Name.ToLower()) != null)
                 {
-                    _logger.LogError($"El nombre {cityCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {cityCreateDto.Name} ya existe en el sistema." };
+                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name));
+                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {cityCreateDto.Name} ya existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name));
                     return BadRequest(ModelState);
                 }
 
                 var province = await _dbContext.Province.FindAsync(cityCreateDto.ProvinceId);
                 if (province == null)
                 {
-                    _logger.LogError($"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema." };
+                    _logger.LogError(string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId));
+                    _response.ErrorMessages = new() { string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El departamento ID={cityCreateDto.ProvinceId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId));
                     return BadRequest(ModelState);
                 }
 
@@ -152,7 +150,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }

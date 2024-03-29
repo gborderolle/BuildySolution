@@ -81,7 +81,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (worker == null)
                 {
                     _logger.LogError($"Trabajador no encontrado ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Trabajador no encontrado ID = {id}." };
+                    _response.ErrorMessages = new() { $"Trabajador no encontrado ID = {id}." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound($"Trabajador no encontrado ID = {id}.");
@@ -99,7 +99,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -111,16 +111,16 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
                     _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new List<string> { $"Datos de entrada inválidos." };
+                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -139,7 +139,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (worker == null)
                 {
                     _logger.LogError($"Trabajo no encontrado ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Trabajo no encontrado ID = {id}" };
+                    _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -170,7 +170,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -192,19 +192,19 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (await _workerRepository.Get(v => v.Name.ToLower() == workerCreateDto.Name.ToLower()) != null)
                 {
                     _logger.LogError($"El nombre {workerCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {workerCreateDto.Name} ya existe en el sistema." };
+                    _response.ErrorMessages = new() { $"El nombre {workerCreateDto.Name} ya existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {workerCreateDto.Name} ya existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, workerCreateDto.Name));
                     return BadRequest(ModelState);
                 }
 
@@ -231,7 +231,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }

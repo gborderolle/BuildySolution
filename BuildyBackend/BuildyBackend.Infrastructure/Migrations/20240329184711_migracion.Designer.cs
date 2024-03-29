@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildyBackend.Infrastructure.Migrations
 {
     [DbContext(typeof(ContextDB))]
-    [Migration("20240329182057_migracion")]
+    [Migration("20240329184711_migracion")]
     partial class migracion
     {
         /// <inheritdoc />
@@ -61,20 +61,20 @@ namespace BuildyBackend.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7768),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1604),
                             Name = "Melo",
                             NominatimCityCode = "ME",
                             ProvinceId = 1,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7769)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1605)
                         },
                         new
                         {
                             Id = 2,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7772),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1608),
                             Name = "Montevideo",
                             NominatimCityCode = "MO",
                             ProvinceId = 2,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7773)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1608)
                         });
                 });
 
@@ -109,10 +109,10 @@ namespace BuildyBackend.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7592),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1257),
                             Name = "Uruguay",
                             NominatimCountryCode = "UY",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7600)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1262)
                         });
                 });
 
@@ -176,252 +176,252 @@ namespace BuildyBackend.Infrastructure.Migrations
                             Id = 1,
                             Address = "Colón 476",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7894),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2049),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu",
                             LatLong = "-32.3674814,-54.1757085",
                             Name = "Colón 476",
                             OwnerId = 3,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7895)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2050)
                         },
                         new
                         {
                             Id = 2,
                             Address = "Colón 480",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7907),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2091),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+480,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674762,-54.1755751,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b0c5f12b:0xaf5b5ba2ea4eb1cb!8m2!3d-32.3674762!4d-54.1729948!16s%2Fg%2F11rz98nq5_?hl=es-419&entry=ttu",
                             LatLong = "-32.3674762,-54.1755751",
                             Name = "Colón 480",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7908)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2091)
                         },
                         new
                         {
                             Id = 3,
                             Address = "Colón 491",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7911),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2095),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+491,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.367241,-54.1754153,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b180e29b:0x95542a9eb2345b16!8m2!3d-32.367241!4d-54.172835!16s%2Fg%2F11fctc9z9z?hl=es-419&entry=ttu",
                             LatLong = "-32.367241,-54.1754153",
                             Name = "Colón 491",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7911)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2095)
                         },
                         new
                         {
                             Id = 4,
                             Address = "Colón 495",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7914),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2098),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+495,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672195,-54.1755857,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b3f659db:0xf3c82a67cd3ebe76!8m2!3d-32.3672195!4d-54.1730054!16s%2Fg%2F11gmz50cjj?hl=es-419&entry=ttu",
                             LatLong = "-32.3672195,-54.1755857",
                             Name = "Colón 495",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7915)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2108)
                         },
                         new
                         {
                             Id = 5,
                             Address = "Colón 503",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7918),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2115),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+503,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3672809,-54.1751337,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980a659bd3f:0x1f64283da64670a9!8m2!3d-32.3672809!4d-54.1725534?hl=es-419&entry=ttu",
                             LatLong = "-32.3672809,-54.1751337",
                             Name = "Colón 503",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7918)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2115)
                         },
                         new
                         {
                             Id = 6,
                             Address = "Darío Silva 774",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7921),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2118),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu",
                             LatLong = "-32.3679807,-54.1752022",
                             Name = "Darío Silva 774",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7921)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2118)
                         },
                         new
                         {
                             Id = 7,
                             Address = "Darío Silva 774 BIS",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7924),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2121),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+774,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3679807,-54.1752022,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980a2c60edb:0x48ad692931a026ea!8m2!3d-32.3679807!4d-54.1726219!16s%2Fg%2F11gr6dzf3g?hl=es-419&entry=ttu",
                             LatLong = "-32.3679807,-54.1752022",
                             Name = "Darío Silva 774 BIS",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7930)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2121)
                         },
                         new
                         {
                             Id = 8,
                             Address = "Darío Silva 781",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7943),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2128),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+781,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675191,-54.1753876,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b076246d:0x1b122d0ac3c1dbc7!8m2!3d-32.3675191!4d-54.1728073!16s%2Fg%2F11g194j1tj?hl=es-419&entry=ttu",
                             LatLong = "-32.3675191,-54.1753876",
                             Name = "Darío Silva 781",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7944)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2129)
                         },
                         new
                         {
                             Id = 9,
                             Address = "Darío Silva 785",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7946),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2131),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+785,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676402,-54.1754579,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba5f73d1:0x186b45d8ed124b2a!8m2!3d-32.3676402!4d-54.1728776!16s%2Fg%2F11sb62lb6c?hl=es-419&entry=ttu",
                             LatLong = "-32.3676402,-54.1754579",
                             Name = "Darío Silva 785",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7947)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2132)
                         },
                         new
                         {
                             Id = 10,
                             Address = "Darío Silva 789",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7949),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2135),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+789,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3676919,-54.1754685,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ba535f25:0xbdc6468d3ed51cc1!8m2!3d-32.3676919!4d-54.1728882!16s%2Fg%2F11syz1ryh9?hl=es-419&entry=ttu",
                             LatLong = "-32.3676919,-54.1754685",
                             Name = "Darío Silva 789",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7950)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2135)
                         },
                         new
                         {
                             Id = 11,
                             Address = "Darío Silva 793",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7952),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2138),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+793,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3675108,-54.1754001,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b079be31:0xa19a7a3d822a0595!8m2!3d-32.3675108!4d-54.1728198!16s%2Fg%2F11h_c4rxz9?hl=es-419&entry=ttu",
                             LatLong = "-32.3675108,-54.1754001",
                             Name = "Darío Silva 793",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7952)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2139)
                         },
                         new
                         {
                             Id = 12,
                             Address = "Darío Silva 801",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7955),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2141),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+801,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673741,-54.1752804,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x3da437edd983606!8m2!3d-32.3673741!4d-54.1727001?hl=es-419&entry=ttu",
                             LatLong = "-32.3673741,-54.1752804",
                             Name = "Darío Silva 801",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7956)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2142)
                         },
                         new
                         {
                             Id = 13,
                             Address = "Darío Silva 803",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7959),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2144),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Calle+Dr.+Juan+Dar%C3%ADo+Silva+803,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3673108,-54.1755231,17z/data=!3m1!4b1!4m5!3m4!1s0x95092980ad44ba05:0x24b5f3fc904ac228!8m2!3d-32.3673108!4d-54.1729428?hl=es-419&entry=ttu",
                             LatLong = "-32.3673108,-54.1755231",
                             Name = "Darío Silva 803",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7959)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2145)
                         },
                         new
                         {
                             Id = 14,
                             Address = "Darío Silva Cochera",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7962),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2147),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Col%C3%B3n+476,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3674814,-54.1757085,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980b6fbe707:0x3f99b6b98961385b!8m2!3d-32.3674814!4d-54.1731282!16s%2Fg%2F11fn9p0pws?hl=es-419&entry=ttu",
                             LatLong = "-32.3674814,-54.1757085",
                             Name = "Darío Silva Cochera",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7963)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2148)
                         },
                         new
                         {
                             Id = 15,
                             Address = "Treinta y Tres 299",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7965),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2151),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Treinta+y+Tres+299,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3765821,-54.1703877,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd6c1beccc3:0xb91b3165ec6107e3!8m2!3d-32.3765821!4d-54.1678074!16s%2Fg%2F11gmz7h_cl?hl=es-419&entry=ttu",
                             LatLong = "-32.3765821,-54.1703877",
                             Name = "Treinta y Tres 299",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7965)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2151)
                         },
                         new
                         {
                             Id = 16,
                             Address = "Manuel Oribe 788",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7968),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2154),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/C.+Gral.+Manuel+Oribe+788,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3764414,-54.1706063,17z/data=!3m1!4b1!4m6!3m5!1s0x95092bd69533354f:0xd6a6a68977288372!8m2!3d-32.3764414!4d-54.168026!16s%2Fg%2F11h57sb583?hl=es-419&entry=ttu",
                             LatLong = "-32.3764414,-54.1706063",
                             Name = "Manuel Oribe 788",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7968)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2155)
                         },
                         new
                         {
                             Id = 17,
                             Address = "Rincón Artigas 702",
                             CityId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(8140),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2157),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Dr+Rincon+Artigas+702,+37000+Melo,+Departamento+de+Cerro+Largo/@-32.3690096,-54.176412,17z/data=!3m1!4b1!4m6!3m5!1s0x95092980ee49a557:0xfbaefe3d055f9ab9!8m2!3d-32.3690096!4d-54.1738317!16s%2Fg%2F11h_c4zxvw?hl=es-419&entry=ttu",
                             LatLong = "-32.3690096,-54.176412",
                             Name = "Rincón Artigas 702",
                             OwnerId = 2,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(8141)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2158)
                         },
                         new
                         {
                             Id = 18,
                             Address = "Maldonado 1106",
                             CityId = 2,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(8145),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2160),
                             EstateIsRented = false,
                             GoogleMapsURL = "https://www.google.com/maps/place/Maldonado+1106,+11100+Montevideo,+Departamento+de+Montevideo/@-34.9097969,-56.1945273,17z/data=!3m1!4b1!4m6!3m5!1s0x959f81c066a6fb4d:0xdb3d1d7d172a0f4c!8m2!3d-34.9097969!4d-56.191947!16s%2Fg%2F11fhvn7njf?hl=es-419&entry=ttu",
                             LatLong = "-34.9097969,-56.1945273",
                             Name = "Maldonado 1106",
                             OwnerId = 1,
                             PresentRentId = 0,
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(8146)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(2161)
                         });
                 });
 
@@ -524,25 +524,25 @@ namespace BuildyBackend.Infrastructure.Migrations
                         {
                             Id = 1,
                             Color = "violet",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7829),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1948),
                             Name = "Mirta",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7830)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1949)
                         },
                         new
                         {
                             Id = 2,
                             Color = "orange",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7831),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1951),
                             Name = "Gladys",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7832)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1952)
                         },
                         new
                         {
                             Id = 3,
                             Color = "green",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7833),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1953),
                             Name = "Cristina",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7834)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1954)
                         });
                 });
 
@@ -616,19 +616,19 @@ namespace BuildyBackend.Infrastructure.Migrations
                         {
                             Id = 1,
                             CountryId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7715),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1506),
                             Name = "Cerro Largo",
                             NominatimProvinceCode = "CL",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7716)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1506)
                         },
                         new
                         {
                             Id = 2,
                             CountryId = 1,
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7718),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1509),
                             Name = "Montevideo",
                             NominatimProvinceCode = "MO",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 56, 10, DateTimeKind.Local).AddTicks(7719)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 11, 58, DateTimeKind.Local).AddTicks(1509)
                         });
                 });
 
@@ -730,11 +730,9 @@ namespace BuildyBackend.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdentityDocument")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -777,11 +775,9 @@ namespace BuildyBackend.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IdentityDocument")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("JobId")
@@ -1124,16 +1120,16 @@ namespace BuildyBackend.Infrastructure.Migrations
                             Id = "bef4cbd4-1f2b-472f-a1e2-e1a901f6808c",
                             Name = "Admin",
                             NormalizedName = "ADMIN",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2289),
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2290)
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2301),
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2302)
                         },
                         new
                         {
                             Id = "bef4cbd4-1f2b-472f-a3f2-e1a901f6811c",
                             Name = "User",
                             NormalizedName = "USER",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2299),
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2299)
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2309),
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2310)
                         });
                 });
 
@@ -1158,77 +1154,77 @@ namespace BuildyBackend.Infrastructure.Migrations
                         {
                             Id = "c2ee6493-5a73-46f3-a3f2-46d1d11d7176",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "dab77c0d-d834-4890-802c-4892155f9325",
+                            ConcurrencyStamp = "feb95345-730e-4f6c-ab75-228c7dc0a0b4",
                             Email = "admin@buildy.lat",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@BUILDY.LAT",
                             NormalizedUserName = "USERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDZ/oNu7NvrGLteJfLGCdUxLMKCxWrr5AktwJ8zhYYpeCy8g9DZFmrShFyklWFXpLA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENjiH073rH1UkJB3NPX0K2UBSv40RHsfMSrheKKMh5WImyH9zmePOEkTaiCgSkyJUg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e14a4afd-c3fb-4019-93fe-b9b2c18cb26c",
+                            SecurityStamp = "119bf5eb-0636-42fa-86a0-80247f55e34f",
                             TwoFactorEnabled = false,
                             UserName = "useradmin",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2723),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2550),
                             Name = "Usuario administrador",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 635, DateTimeKind.Local).AddTicks(2725)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 576, DateTimeKind.Local).AddTicks(2552)
                         },
                         new
                         {
                             Id = "e0765c93-676c-4199-b7ee-d7877c471821",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "826c0aff-8387-4ade-a86e-3e0b038ee0a5",
+                            ConcurrencyStamp = "ed09869d-e40a-4edb-a74f-efb06d8754eb",
                             Email = "normal@buildy.lat",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "NORMAL@BUILDY.LAT",
                             NormalizedUserName = "USERNORMAL",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBBoTBOafquZDVC+vhsLyP7Ch9Uswt9Gwke+UQjoDzGd8A+J3cu440niEXF1fd28OQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPY0m/Pr/QGbyGIunJ2CYEXkcXoy1sdAKqRy4gQM4MPDHISm0jxBv/P8V9JgWxEFXQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e58d9cce-8b45-4bc6-88de-dccf756e71f9",
+                            SecurityStamp = "270f13cb-e525-4a96-8912-7300aac36788",
                             TwoFactorEnabled = false,
                             UserName = "usernormal",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 721, DateTimeKind.Local).AddTicks(9231),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 698, DateTimeKind.Local).AddTicks(9235),
                             Name = "Usuario normal",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 721, DateTimeKind.Local).AddTicks(9246)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 698, DateTimeKind.Local).AddTicks(9242)
                         },
                         new
                         {
                             Id = "58fbedfc-e682-479b-ba46-19ef4c137d2a",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "596c2b58-32f5-42b8-b76a-456b35e1994a",
+                            ConcurrencyStamp = "da2d3d9a-6012-431a-a47e-dbd90ed185e2",
                             Email = "mirta@buildy.lat",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "MIRTA@BUILDY.LAT",
                             NormalizedUserName = "MIRTADLS",
-                            PasswordHash = "AQAAAAIAAYagAAAAEH4f1h699ZzCE4UqFQQbYkn7DBi4CMKt9ueQZTJiXS9hNyJ4ZCc1+U3xOaJkPxyDaA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHH0mWzdzEXY4smbk4VAB5hctSa9oVAGKNEvcY22SJK6UkmqXic1ZRpH8yiH2t7iRg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5f5b5cc8-abb7-4eb6-a465-1640f2073dc9",
+                            SecurityStamp = "a6144ca8-1913-4933-8efe-7b87b9e170d0",
                             TwoFactorEnabled = false,
                             UserName = "mirtadls",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 816, DateTimeKind.Local).AddTicks(9918),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 811, DateTimeKind.Local).AddTicks(6096),
                             Name = "Mirta de los Santos",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 816, DateTimeKind.Local).AddTicks(9947)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 811, DateTimeKind.Local).AddTicks(6100)
                         },
                         new
                         {
                             Id = "11c767dc-e8ce-448e-8fdb-ee590a44a3ff",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7c125740-6c1a-46e2-be83-085d6b9e2452",
+                            ConcurrencyStamp = "61eb63ff-5d9c-44aa-a431-2b0333370044",
                             Email = "gladys@buildy.lat",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "GLADYS@BUILDY.LAT",
                             NormalizedUserName = "IRGLA",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKgxrONQrPAmhbGOzrRoUhdxqqW8ZaJEpS3beUFSYo9tIkfP27BJ8xaeFyXfwgqlpA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFGrsPaik+iJPxC/MW8iWDMjOD5WfED7QPQS7HcozSE3zrty0ExjD+D5MYIh4xRefg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9b7d27ba-aa45-4cf6-b246-2a58c2460bf7",
+                            SecurityStamp = "83b61297-24a7-4fc6-b650-60676e13b70d",
                             TwoFactorEnabled = false,
                             UserName = "irgla",
-                            Creation = new DateTime(2024, 3, 29, 15, 20, 55, 909, DateTimeKind.Local).AddTicks(4947),
+                            Creation = new DateTime(2024, 3, 29, 15, 47, 10, 932, DateTimeKind.Local).AddTicks(2065),
                             Name = "Gladys de los Santos",
-                            Update = new DateTime(2024, 3, 29, 15, 20, 55, 909, DateTimeKind.Local).AddTicks(4960)
+                            Update = new DateTime(2024, 3, 29, 15, 47, 10, 932, DateTimeKind.Local).AddTicks(2081)
                         });
                 });
 

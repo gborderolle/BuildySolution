@@ -205,16 +205,16 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                                        _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (await _reportRepository.Get(v => v.Name.ToLower() == reportCreateDto.Name.ToLower()) != null)
                 {
                     _logger.LogError($"El nombre {reportCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {reportCreateDto.Name} ya existe en el sistema." };
+                    _response.ErrorMessages = new() { $"El nombre {reportCreateDto.Name} ya existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"El nombre {reportCreateDto.Name} ya existe en el sistema.");
@@ -225,7 +225,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
                 if (estate == null)
                 {
                     _logger.LogError($"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema.");
@@ -272,7 +272,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }

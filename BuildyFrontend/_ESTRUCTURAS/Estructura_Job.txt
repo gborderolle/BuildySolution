@@ -170,7 +170,7 @@ public class Job : IId
                 if (job == null)
                 {
                     _logger.LogError($"Obra no encontrada ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Obra no encontrada ID = {id}." };
+                    _response.ErrorMessages = new() { $"Obra no encontrada ID = {id}." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound($"Obra no encontrada ID = {id}.");
@@ -205,7 +205,7 @@ public class Job : IId
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -219,7 +219,7 @@ public class Job : IId
                 if (id <= 0)
                 {
                     _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new List<string> { $"Datos de entrada inválidos." };
+                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -242,7 +242,7 @@ public class Job : IId
                 if (job == null)
                 {
                     _logger.LogError($"Trabajo no encontrado ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Trabajo no encontrado ID = {id}" };
+                    _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -285,7 +285,7 @@ public class Job : IId
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -310,7 +310,7 @@ public class Job : IId
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { "Ocurrió un error en el servidor." };
+                    _response.ErrorMessages = new() { "Ocurrió un error en el servidor." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(ModelState);
@@ -319,7 +319,7 @@ public class Job : IId
                 if (await _jobRepository.Get(v => v.Name.ToLower() == jobCreateDto.Name.ToLower()) != null)
                 {
                     _logger.LogError($"El nombre {jobCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {jobCreateDto.Name} ya existe en el sistema." };
+                    _response.ErrorMessages = new() { $"El nombre {jobCreateDto.Name} ya existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"El nombre {jobCreateDto.Name} ya existe en el sistema.");
@@ -330,7 +330,7 @@ public class Job : IId
                 if (estate == null)
                 {
                     _logger.LogError($"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema.");
@@ -390,7 +390,7 @@ public class Job : IId
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
                 return _response;
             }
         }

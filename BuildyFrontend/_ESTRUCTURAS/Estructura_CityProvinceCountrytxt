@@ -232,7 +232,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityC
     if (!ModelState.IsValid)
     {
       _logger.LogError($"Ocurrió un error en el servidor.");
-      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.ErrorMessages = new() { $"Ocurrió un error en el servidor." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       return BadRequest(ModelState);
@@ -240,7 +240,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityC
     if (await _cityRepository.Get(v => v.Name.ToLower() == cityCreateDto.Name.ToLower()) != null)
     {
       _logger.LogError($"El nombre {cityCreateDto.Name} ya existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El nombre {cityCreateDto.Name} ya existe en el sistema." };
+      _response.ErrorMessages = new() { $"El nombre {cityCreateDto.Name} ya existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       ModelState.AddModelError("NameAlreadyExists", $"El nombre {cityCreateDto.Name} ya existe en el sistema.");
@@ -251,7 +251,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityC
     if (province == null)
     {
       _logger.LogError($"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema." };
+      _response.ErrorMessages = new() { $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       ModelState.AddModelError("NameAlreadyExists", $"El departamento ID={cityCreateDto.ProvinceDSId} no existe en el sistema.");
@@ -278,7 +278,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityC
     _logger.LogError(ex.ToString());
     _response.IsSuccess = false;
     _response.StatusCode = HttpStatusCode.InternalServerError;
-    _response.ErrorMessages = new List<string> { ex.ToString() };
+    _response.ErrorMessages = new() { ex.ToString() };
   }
   return _response;
 }
@@ -292,7 +292,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
     if (!ModelState.IsValid)
     {
       _logger.LogError($"Ocurrió un error en el servidor.");
-      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.ErrorMessages = new() { $"Ocurrió un error en el servidor." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       return BadRequest(ModelState);
@@ -300,7 +300,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
     if (await _provinceRepository.Get(v => v.Name.ToLower() == provinceCreateDto.Name.ToLower()) != null)
     {
       _logger.LogError($"El nombre {provinceCreateDto.Name} ya existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El nombre {provinceCreateDto.Name} ya existe en el sistema." };
+      _response.ErrorMessages = new() { $"El nombre {provinceCreateDto.Name} ya existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       ModelState.AddModelError("NameAlreadyExists", $"El nombre {provinceCreateDto.Name} ya existe en el sistema.");
@@ -311,7 +311,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
     if (country == null)
     {
       _logger.LogError($"El país ID={provinceCreateDto.CountryId} no existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
+      _response.ErrorMessages = new() { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryId} no existe en el sistema.");
@@ -338,7 +338,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
     _logger.LogError(ex.ToString());
     _response.IsSuccess = false;
     _response.StatusCode = HttpStatusCode.InternalServerError;
-    _response.ErrorMessages = new List<string> { ex.ToString() };
+    _response.ErrorMessages = new() { ex.ToString() };
   }
   return _response;
 }
@@ -352,7 +352,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO co
     if (!ModelState.IsValid)
     {
       _logger.LogError($"Ocurrió un error en el servidor.");
-      _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+      _response.ErrorMessages = new() { $"Ocurrió un error en el servidor." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       return BadRequest(ModelState);
@@ -360,7 +360,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO co
     if (await _countryRepository.Get(v => v.Name.ToLower() == countryCreateDto.Name.ToLower()) != null)
     {
       _logger.LogError($"El nombre {countryCreateDto.Name} ya existe en el sistema");
-      _response.ErrorMessages = new List<string> { $"El nombre {countryCreateDto.Name} ya existe en el sistema." };
+      _response.ErrorMessages = new() { $"El nombre {countryCreateDto.Name} ya existe en el sistema." };
       _response.IsSuccess = false;
       _response.StatusCode = HttpStatusCode.BadRequest;
       ModelState.AddModelError("NameAlreadyExists", $"El nombre {countryCreateDto.Name} ya existe en el sistema.");
@@ -386,7 +386,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO co
     _logger.LogError(ex.ToString());
     _response.IsSuccess = false;
     _response.StatusCode = HttpStatusCode.InternalServerError;
-    _response.ErrorMessages = new List<string> { ex.ToString() };
+    _response.ErrorMessages = new() { ex.ToString() };
   }
   return _response;
 }

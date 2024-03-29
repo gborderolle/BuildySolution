@@ -223,17 +223,17 @@ public class Rent : IId
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                                        _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 var estate = await _dbContext.Estate.FindAsync(rentCreateDto.EstateId);
                 if (estate == null)
                 {
                     _logger.LogError($"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema.");
-                    _response.ErrorMessages = new List<string> { $"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound($"La propiedad ID={rentCreateDto.EstateId} no existe en el sistema.");
@@ -283,7 +283,7 @@ public class Rent : IId
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
                 return _response;
             }
         }

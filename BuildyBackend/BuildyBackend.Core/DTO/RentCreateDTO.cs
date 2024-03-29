@@ -34,7 +34,7 @@ namespace BuildyBackend.Core.DTO
         public bool RentIsEnded { get; set; }
 
         [FileSizeValidation(maxSizeMB: 4)]
-        public List<IFormFile> ListFiles { get; set; }
+        public List<IFormFile>? ListFiles { get; set; }
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace BuildyBackend.Core.DTO
         /// </summary>
         [Required(ErrorMessage = "El campo {0} es requerido")] // n..0 (0=no existe este sin el padre)
         public int EstateId { get; set; }
-        public Estate Estate { get; set; }
+        public Estate? Estate { get; set; }
 
         // public List<TenantCreateDTO> ListTenants { get; set; } = new();
         public List<int> TenantIds { get; set; } = new List<int>();  // Cambio aquí

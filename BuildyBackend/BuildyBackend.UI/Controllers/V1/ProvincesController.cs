@@ -94,19 +94,19 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (await _provinceRepository.Get(v => v.Name.ToLower() == provinceCreateDto.Name.ToLower()) != null)
                 {
-                    _logger.LogError($"El nombre {provinceCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {provinceCreateDto.Name} ya existe en el sistema." };
+                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name));
+                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {provinceCreateDto.Name} ya existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name));
                     return BadRequest(ModelState);
                 }
 
@@ -114,7 +114,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (country == null)
                 {
                     _logger.LogError($"El país ID={provinceCreateDto.CountryId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryId} no existe en el sistema.");
@@ -142,7 +142,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }

@@ -168,7 +168,7 @@ namespace BuildyBackend.UI.Controllers.V1
                     if (estate == null)
                     {
                         _logger.LogError($"Propiedad no encontrada ID = {id}.");
-                        _response.ErrorMessages = new List<string> { $"Propiedad no encontrada ID = {id}." };
+                        _response.ErrorMessages = new() { $"Propiedad no encontrada ID = {id}." };
                         _response.IsSuccess = false;
                         _response.StatusCode = HttpStatusCode.NotFound;
                         return NotFound($"Propiedad no encontrada ID = {id}.");
@@ -245,7 +245,7 @@ namespace BuildyBackend.UI.Controllers.V1
                     _logger.LogError(ex.ToString());
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.InternalServerError;
-                    _response.ErrorMessages = new List<string> { ex.ToString() };
+                    _response.ErrorMessages = new() { ex.ToString() };
                     return BadRequest(_response);
                 }
             }
@@ -258,16 +258,16 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
                     _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new List<string> { $"Datos de entrada inválidos." };
+                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -301,7 +301,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (estate == null)
                 {
                     _logger.LogError($"Propiedad no encontrada ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Propiedad no encontrada ID = {id}" };
+                    _response.ErrorMessages = new() { $"Propiedad no encontrada ID = {id}" };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -332,7 +332,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -354,19 +354,19 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 if (await _estateRepository.Get(v => v.Name.ToLower() == estateCreateDto.Name.ToLower()) != null)
                 {
-                    _logger.LogError($"El nombre {estateCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El nombre {estateCreateDto.Name} ya existe en el sistema." };
+                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name));
+                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El nombre {estateCreateDto.Name} ya existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name));
                     return BadRequest(ModelState);
                 }
 
@@ -374,7 +374,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (city == null)
                 {
                     _logger.LogError($"La ciudad ID={estateCreateDto.CityId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema.");
@@ -384,7 +384,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (owner == null)
                 {
                     _logger.LogError($"La ciudad ID={estateCreateDto.OwnerId} no existe en el sistema");
-                    _response.ErrorMessages = new List<string> { $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema." };
+                    _response.ErrorMessages = new() { $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     ModelState.AddModelError("NameAlreadyExists", $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema.");
@@ -416,7 +416,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }

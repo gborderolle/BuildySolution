@@ -6,6 +6,7 @@ using System.Net;
 using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.DTO;
 using BuildyBackend.Core.Domain.RepositoryContracts;
+using BuildyBackend.Core.Helpers;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -61,7 +62,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -100,7 +101,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }
@@ -118,7 +119,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (id <= 0)
                 {
                     _logger.LogError($"Error al obtener la entidad ID = {id}");
-                    _response.ErrorMessages = new List<string> { $"Error al obtener la entidad ID = {id}." };
+                    _response.ErrorMessages = new() { $"Error al obtener la entidad ID = {id}." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -133,7 +134,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (entity == null)
                 {
                     _logger.LogError($"Entidad no encontrada ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Entidad no encontrada ID = {id}." };
+                    _response.ErrorMessages = new() { $"Entidad no encontrada ID = {id}." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -150,7 +151,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return _response;
         }
@@ -162,7 +163,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (id <= 0)
                 {
                     _logger.LogError($"El Id {id} es inválido.");
-                    _response.ErrorMessages = new List<string> { $"El Id {id} es inválido." };
+                    _response.ErrorMessages = new() { $"El Id {id} es inválido." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -172,7 +173,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (entity == null)
                 {
                     _logger.LogError($"Entidad no encontrada ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Entidad no encontrada ID = {id}." };
+                    _response.ErrorMessages = new() { $"Entidad no encontrada ID = {id}." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -188,7 +189,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -201,7 +202,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (id <= 0)
                 {
                     _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new List<string> { $"Datos de entrada inválidos." };
+                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -211,7 +212,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (entity == null)
                 {
                     _logger.LogError($"Entidad no encontrada ID = {id}.");
-                    _response.ErrorMessages = new List<string> { $"Entidad no encontrada ID = {id}" };
+                    _response.ErrorMessages = new() { $"Entidad no encontrada ID = {id}" };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
@@ -233,7 +234,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return BadRequest(_response);
         }
@@ -247,7 +248,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (patchDto == null || id <= 0)
                 {
                     _logger.LogError($"El Id {id} es inválido.");
-                    _response.ErrorMessages = new List<string> { $"El Id {id} es inválido." };
+                    _response.ErrorMessages = new() { $"El Id {id} es inválido." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -266,11 +267,11 @@ namespace BuildyBackend.UI.Controllers.V1
                 patchDto.ApplyTo(patchDTO, ModelState);
                 if (!TryValidateModel(patchDTO))
                 {
-                    _logger.LogError($"Ocurrió un error en el servidor.");
-                    _response.ErrorMessages = new List<string> { $"Ocurrió un error en el servidor." };
+                    _logger.LogError(Messages.Generic.NotValid);
+                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    return BadRequest(ModelState);
+                    return BadRequest(_response);
                 }
                 _mapper.Map(patchDTO, entity);
                 var updatedEntity = await _repository.Update(entity);
@@ -285,7 +286,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 _logger.LogError(ex.ToString());
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.ErrorMessages = new List<string> { ex.ToString() };
+                _response.ErrorMessages = new() { ex.ToString() };
             }
             return Ok(_response);
         }

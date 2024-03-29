@@ -411,14 +411,14 @@ const EstateMenu = () => {
             />
           </button>
           <CPopover
-            content={estate.Owner?.name || "N/A"}
+            content={estate.owner?.name || "N/A"}
             placement="top"
             trigger={["hover", "focus"]}
           >
             <button style={{ border: "none", background: "none" }}>
               <FontAwesomeIcon
                 icon={faInfoCircle}
-                color={estate.Owner?.color || "lightgray"}
+                color={estate.owner?.color || "lightgray"}
               />
             </button>
           </CPopover>
@@ -486,17 +486,18 @@ const EstateMenu = () => {
       "Nombre",
       "Dirección",
       "Inquilino",
-      "Valor Mensual",
+      "Mensualidad",
+      "Dueño",
       "Comentarios",
     ]; // Asegúrate de ajustar estos encabezados
     const tableRows = estateList.map((estate) => [
       estate.id,
       estate.name,
       estate.address,
-      estate.tenantName, // Asumiendo que esto se calcula o se extrae previamente
+      estate.tenantName,
       estate.monthlyValue,
+      estate.owner?.name || "N/A",
       estate.comments,
-      // Excluyendo intencionadamente la columna "Opciones"
     ]);
 
     autoTable(doc, {
@@ -511,14 +512,17 @@ const EstateMenu = () => {
 
   // Función para exportar a CSV
   const exportCSV = () => {
-    const header = ["ID,Nombre,Dirección,Inquilino,Valor Mensual,Comentarios"]; // Ajusta estos encabezados según sea necesario
+    const header = [
+      "ID,Nombre,Dirección,Inquilino,Mensualidad,Dueño,Comentarios",
+    ]; // Ajusta estos encabezados según sea necesario
     const rows = estateList.map((estate) =>
       [
         estate.id,
         estate.name,
         estate.address,
-        estate.tenantName, // Asumiendo que esto se calcula o se extrae previamente
+        estate.tenantName,
         estate.monthlyValue,
+        estate.owner?.name || "N/A",
         estate.comments,
         // Excluyendo la columna "Opciones"
       ].join(",")
@@ -537,12 +541,13 @@ const EstateMenu = () => {
 
     // Convertir datos a hoja de trabajo (asumiendo que estateList es tu lista de datos)
     const dataForExport = estateList.map(
-      ({ id, name, address, tenantName, monthlyValue, comments }) => ({
+      ({ id, name, address, tenantName, monthlyValue, owner, comments }) => ({
         ID: id,
         Nombre: name,
         Dirección: address,
         Inquilino: tenantName,
-        "Valor Mensual": monthlyValue,
+        Mensualidad: monthlyValue,
+        Dueño: owner?.name || "N/A",
         Comentarios: comments,
       })
     );
