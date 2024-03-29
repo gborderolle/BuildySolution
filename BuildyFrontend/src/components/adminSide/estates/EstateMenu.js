@@ -16,6 +16,10 @@ import {
   CModalTitle,
   CButton,
   CModalFooter,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
 } from "@coreui/react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -54,6 +58,7 @@ const EstateMenu = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEstate, setSelectedEstate] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedOwner, setSelectedOwner] = useState("");
 
   const dispatch = useDispatch();
 
@@ -96,56 +101,77 @@ const EstateMenu = () => {
   }, [username, navigate, dispatch]);
   //#endregion RUTA PROTEGIDA
 
-  const handleSelectEstate = (estate) => {
-    setSelectedEstate(estate);
-  };
+  const isMobile = useSelector((state) => state.auth.isMobile);
 
   //#endregion Consts ***********************************
 
   //#region Hooks ***********************************
+
+  const uniqueOwners = useMemo(() => {
+    // Extrae los propietarios y elimina duplicados
+    const ownersMap = new Map(
+      estateList
+        .filter((estate) => estate.owner) // Filtra propiedades que tienen propietario definido
+        .map((estate) => [estate.owner.id, estate.owner.name]) // Crea pares de [id, nombre]
+    );
+
+    // Convierte el Map en un array de objetos con id y name, y ordena por id
+    const ownersArray = Array.from(ownersMap, ([id, name]) => ({
+      id,
+      name,
+    })).sort((a, b) => a.id - b.id);
+
+    // Añade la opción "Todos" al inicio
+    return [{ id: "", name: "Todos" }, ...ownersArray];
+  }, [estateList]);
 
   // Scroll to top of the page on startup
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const filteredEstateList = estateList.filter((estate) => {
-    const match1 = estate.name
-      ? estate.name.toLowerCase().includes(searchTerm.toLowerCase())
-      : false;
-    const match2 = estate.address
-      ? estate.address.toLowerCase().includes(searchTerm.toLowerCase())
-      : false;
+  const filteredEstateList = useMemo(() => {
+    return estateList.filter((estate) => {
+      // Filtra por propietario si se seleccionó uno, omitiendo si se seleccionó "Todos" o si no se seleccionó nada.
+      const matchesOwner =
+        selectedOwner === "" || estate.owner?.id.toString() === selectedOwner;
 
-    // Último alquiler y primer inquilino
-    const lastRent =
-      estate.listRents && estate.listRents.length > 0
-        ? estate.listRents[estate.listRents.length - 1]
-        : null;
-    const tenantName =
-      lastRent && lastRent.listTenants && lastRent.listTenants.length > 0
-        ? lastRent.listTenants[0].name
-        : null;
+      // Filtra por término de búsqueda si se ha ingresado alguno.
+      const matchesSearchTerm =
+        searchTerm.trim() === "" ||
+        estate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        estate.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (estate.comments &&
+          estate.comments.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    // Verificar si el nombre del inquilino coincide con el término de búsqueda
-    const match3 = tenantName
-      ? tenantName.toLowerCase().includes(searchTerm.toLowerCase())
-      : false;
-
-    const match4 =
-      lastRent && lastRent.monthlyValue
-        ? lastRent.monthlyValue
-            .toString()
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+      // Verificar si el nombre del inquilino coincide con el término de búsqueda
+      const lastRent =
+        estate.listRents && estate.listRents.length > 0
+          ? estate.listRents[estate.listRents.length - 1]
+          : null;
+      const tenantName =
+        lastRent && lastRent.listTenants && lastRent.listTenants.length > 0
+          ? lastRent.listTenants[0].name
+          : null;
+      const matchesTenantName = tenantName
+        ? tenantName.toLowerCase().includes(searchTerm.toLowerCase())
         : false;
 
-    const match5 = estate.comments
-      ? estate.comments.toLowerCase().includes(searchTerm.toLowerCase())
-      : false;
+      const matchesMonthlyValue =
+        lastRent && lastRent.monthlyValue
+          ? lastRent.monthlyValue
+              .toString()
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
+          : false;
 
-    return match1 || match2 || match3 || match4 || match5;
-  });
+      // Combina todos los criterios de coincidencia en una única verificación
+      return (
+        matchesOwner &&
+        (matchesSearchTerm || matchesTenantName || matchesMonthlyValue)
+      );
+    });
+  }, [estateList, selectedOwner, searchTerm]);
 
   useEffect(() => {
     setPageCount(Math.ceil(filteredEstateList.length / itemsPerPage));
@@ -254,6 +280,14 @@ const EstateMenu = () => {
     }
     return sortableList;
   }, [filteredEstateList, sortConfig]);
+
+  const totalMonthlyRent = useMemo(() => {
+    return filteredEstateList.reduce((total, estate) => {
+      const lastRent =
+        estate.listRents && estate.listRents[estate.listRents.length - 1];
+      return total + (lastRent ? lastRent.monthlyValue : 0);
+    }, 0);
+  }, [filteredEstateList]);
 
   //#endregion Hooks ***********************************
 
@@ -566,6 +600,10 @@ const EstateMenu = () => {
 
   //#region Events ***********************************
 
+  const handleSelectEstate = (estate) => {
+    setSelectedEstate(estate);
+  };
+
   //#endregion Events ***********************************
 
   return (
@@ -579,7 +617,30 @@ const EstateMenu = () => {
               alignItems: "center",
             }}
           >
-            Panel de propiedades
+            {!isMobile && "Panel de propiedades"}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <CDropdown className="mb-3">
+                <CDropdownToggle color="secondary">
+                  {uniqueOwners.find((o) => o.id.toString() === selectedOwner)
+                    ?.name || "Propietario"}
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  {uniqueOwners.map((owner) => (
+                    <CDropdownItem
+                      key={owner.id}
+                      onClick={() => setSelectedOwner(owner.id.toString())} // Guarda el id del propietario seleccionado
+                    >
+                      {owner.name}
+                    </CDropdownItem>
+                  ))}
+                </CDropdownMenu>
+              </CDropdown>
+            </div>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button
                 onClick={printHandler}
@@ -657,6 +718,19 @@ const EstateMenu = () => {
                   </tr>
                 </thead>
                 <tbody>{renderEstateRows()}</tbody>
+                <tfoot>
+                  <tr>
+                    <td
+                      colSpan="7"
+                      style={{ textAlign: "right", fontWeight: "bold" }}
+                    >
+                      Total Mensualidad:
+                    </td>
+                    <td style={{ fontWeight: "bold" }}>
+                      {formatToDollars(totalMonthlyRent)}
+                    </td>
+                  </tr>
+                </tfoot>
               </CTable>
             </div>
           </CRow>

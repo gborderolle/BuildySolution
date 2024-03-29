@@ -631,7 +631,7 @@ const RentABM = () => {
                                 color="secondary"
                                 style={{ marginRight: "10px" }}
                               >
-                                Descargar
+                                Contrato
                               </CButton>
                             </a>
                             <CButton
@@ -693,10 +693,10 @@ const RentABM = () => {
 
       <CModal visible={showModal} onClose={handleClose}>
         <CModalHeader>
-          <CModalTitle>Descargar datos</CModalTitle>
+          <CModalTitle>Generar Contrato nuevo</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <p>Elige el formato para descargar la tabla:</p>
+          <p>ToDo</p>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={handleClose}>
