@@ -1,4 +1,3 @@
-using BuildyBackend.Core;
 using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.Domain.IdentityEntities;
 using BuildyBackend.Core.Enums;

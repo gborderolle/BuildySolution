@@ -2,13 +2,13 @@ import axios from "axios";
 import { authActions } from "./auth-slice";
 import showToastMessage from "../components/messages/ShowSuccess";
 
-import { urlAccount } from "../endpoints"; // Asegúrate de ajustar la ruta relativa según sea necesario
+import { urlLogin } from "../endpoints"; // Asegúrate de ajustar la ruta relativa según sea necesario
 
 export const loginHandler =
   (username, password, navigate, setErrorMessage) => async (dispatch) => {
     try {
       const response = await axios.post(
-        `${urlAccount}/login`,
+        `${urlLogin}`,
         { username, password },
         { headers: { "x-version": "1" } }
       );

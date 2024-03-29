@@ -2,6 +2,7 @@ const apiURL = process.env.REACT_APP_API_URL;
 export const apiVersionName = process.env.REACT_APP_API_VERSION_NAME;
 export const apiVersionNumber = process.env.REACT_APP_API_VERSION_NUMBER;
 export const urlAccount = `${apiURL}/accounts`;
+export const urlLogin = `${apiURL}/accounts/Login`;
 export const urlEstate = `${apiURL}/estates`;
 export const urlJob = `${apiURL}/jobs`;
 export const urlRent = `${apiURL}/rents`;
