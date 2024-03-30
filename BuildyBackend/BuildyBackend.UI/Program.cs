@@ -1,5 +1,3 @@
-using BuildyBackend.Core.Helpers;
-using BuildyBackend.Infrastructure.Services;
 using BuildyBackend.UI.Middlewares;
 using BuildyBackend.UI.StartupExtensions;
 using Serilog;

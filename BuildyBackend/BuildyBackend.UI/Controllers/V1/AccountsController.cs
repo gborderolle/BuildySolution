@@ -29,7 +29,7 @@ namespace BuildyBackend.UI.Controllers.V1
     public class AccountsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly ILogger<AccountsController> _logger; // Logger para registrar eventos. 
+        private readonly ILogger<AccountsController> _logger;
         private readonly IMapper _mapper;
         private readonly IEmailSender _emailSender;
         private readonly EmailConfiguration _emailConfiguration;
@@ -41,8 +41,12 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly ContextDB _contextDB;
         private APIResponse _response;
         private readonly IWebHostEnvironment _environment;
-        private readonly IMessage<BuildyUserMessage> _messageUser;
-        private readonly IMessage<BuildyRoleMessage> _messageRole;
+        // private readonly IMessage<BuildyUserMessage> _messageUser;
+        // private readonly IMessage<BuildyRoleMessage> _messageRole;
+
+        private readonly IMessage<BuildyUser> _messageUser;
+        private readonly IMessage<BuildyRole> _messageRole;
+
 
         public AccountsController
         (
@@ -58,8 +62,8 @@ namespace BuildyBackend.UI.Controllers.V1
             ILogService logService,
             ContextDB dbContext,
             IWebHostEnvironment environment,
-            IMessage<BuildyUserMessage> messageUser,
-            IMessage<BuildyRoleMessage> messageRole
+            IMessage<BuildyUser> messageUser,
+            IMessage<BuildyRole> messageRole
         )
         {
             _response = new();
@@ -325,25 +329,27 @@ namespace BuildyBackend.UI.Controllers.V1
         {
             try
             {
-                // lockoutOnFailure: bloquea al usuario si tiene muchos intentos de logueo
                 var result = await _signInManager.PasswordSignInAsync(dto.Username, dto.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(dto.Username);
                     var roles = await _userManager.GetRolesAsync(user); // Obtener roles del usuario
+
+                    await _logService.LogAction(((BuildyUserMessage)_messageUser).ActionLog(int.Parse(user.Id), user.UserName), "Login", "Inicio de sesión.", user.UserName);
                     _logger.LogInformation(((BuildyUserMessage)_messageUser).LoginSuccess(user.Id, user.UserName));
 
                     _response.StatusCode = HttpStatusCode.OK;
                     _response.Result = new
                     {
                         Token = await TokenSetup(dto),
-                        UserRoles = roles // Añade los roles del usuario aquí
+                        UserRoles = roles
                     };
                     await SendLoginNotification(dto);
                 }
                 else
                 {
-                    _logger.LogError($"Login incorrecto.");
+                    await _logService.LogAction(((BuildyUserMessage)_messageUser).ActionLog(0, dto.Username), "Login", "Inicio de sesión fallido.", dto.Username);
+                    _logger.LogError($"Inicio de sesión fallido.");
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest("Login incorrecto");  // respuesta genérica para no revelar información
