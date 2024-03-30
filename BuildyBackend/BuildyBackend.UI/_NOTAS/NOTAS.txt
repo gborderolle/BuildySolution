@@ -1,0 +1,132 @@
+﻿ASPNETCORE_ENVIRONMENT: Development | Production
+
+{
+    "username": "useradmin",
+    "password":"useradmin1234"
+}
+
+--
+
+Para usar POSTMAN:
+
+Headers:
+x-version   1
+
+Params:
+?Page=1&RecordsPerPage=50
+
+--
+
+GET all:
+https://localhost:7015/api/cinemas?Page=1&RecordsPerPage=50
+
+GET 1:
+https://localhost:7015/api/cinemas/1
+
+POST:
+https://localhost:7015/api/cinemas
+
+Cinemas
+{
+    "name": "Moviecenter"
+}
+
+https://localhost:7015/api/movies?Page=1&RecordsPerPage=50
+
+Movies (tipo Form)
+{
+    "title": "Peli 1",
+    "GenresIds":[1,2],
+    "CinemasIds":[1,2],
+    "ActorsIds":[1,2]
+    "poster" : FILE
+}
+
+--
+
+Uso del PATCH: https://localhost:7015/api/movies/3
+
+Movies (tipo raw o body)
+[
+    { 
+    "op": "replace", 
+    "path": "/title", 
+    "value": "Pelicula 3" 
+    }
+]
+
+--
+
+"Unsupported Media Type" --> Se mandan mal los inputs (usualmente falta indicar tipo JSON en Postman)
+
+
+
+--
+
+Git ignore:
+
+bin/
+obj/
+
+--
+
+
+
+// ---------------------------------------------------------- *****************
+
+SELECT TOP (1000) *
+  FROM [WebAPI_tutorial_peliculas].[dbo].actor
+
+SELECT TOP (1000) [Id]
+      ,[Name]
+      ,[Creation]
+      ,[Update]
+  FROM [WebAPI_tutorial_peliculas].[dbo].[Genre]
+
+SELECT TOP (1000) [Id]
+      ,[Name]
+      ,[Creation]
+      ,[Update]
+  FROM [WebAPI_tutorial_peliculas].[dbo].[Cinema]
+
+  SELECT *
+  FROM [WebAPI_tutorial_peliculas].[dbo].review
+
+SELECT TOP (1000) [Id]
+      ,[Title]
+      ,[Creation]
+      ,[Update]
+      ,[OnCinema]
+      ,[Premiere]
+      ,[PosterURL]
+  FROM [WebAPI_tutorial_peliculas].[dbo].[Movie]
+
+// ---------------------------------------------------------- *****************
+
+Conexión SmarterASP
+
+BD:
+db_a4d7d8_WebAPItutorial
+WebAPItutorial1234
+
+server: SQL5111.site4now.net
+usr:db_a4d7d8_webapi_admin
+psw: webapi1234
+
+Server:
+Service URL: https://win5029.site4now.net:8172/MsDeploy.axd?site=gborderolle1-001-site1
+Site Name: gborderolle1-001-site1
+Username: gborderolle1-001
+Password: Gborderolle12a
+
+Initial Catalog: db_a4d7d8_webapi
+
+Publish:
+URL: http://gborderolle1-001-site1.atempurl.com
+
+URL final: http://gborderolle1-001-site1.atempurl.com/swagger/index.html
+
+
+
+// ---------------------------------------------------------- *****************
+

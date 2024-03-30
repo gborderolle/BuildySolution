@@ -1,0 +1,20 @@
+Guía de deploy a Azure:
+https://microsoftlearning.github.io/APL-2002-develop-aspnet-core-consumes-api/Instructions/Labs/01-interact-with-an-api.html
+
+Azure pricing con free tier:
+https://azure.microsoft.com/en-us/pricing/details/app-service/windows/
+
+Guía del error:
+https://stackoverflow.com/questions/63680520/vscode-deploy-azure-app-task-not-found-error
+
+Error:
+vs code error exist after running predeploytask clean
+
+Mi cambio:
+    {
+    "editor.formatOnSave": true,
+    "notebook.formatOnSave.enabled": true,
+    "appService.preDeployTask": "publish",
+    "appService.deploySubpath": "bin\\Release\\net7.0\\win-x64",
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/231cb65d-2cec-453c-80d5-4248c9432831/resourceGroups/buildy-gborderolle/providers/Microsoft.Web/sites/buildy-gborderolle"
+    }

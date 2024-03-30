@@ -1,0 +1,117 @@
+﻿Para todos:
+
+Header:
+x-version	1
+
+-----------------------
+
+
+GET
+
+https://localhost:7015/api/movies?Page=1&RecordsPerPage=50
+
+// -- *****************************************************************
+
+GET/1
+
+https://localhost:7015/api/movies/1?Page=1&RecordsPerPage=50
+
+// -- *****************************************************************
+
+POST
+
+
+Movies body:form-data
+
+title:Spiderman
+genres:[{"movieId":"1","genreId":"1"}]
+cinemas:[{"movieId":"1","cinemaId":"1"}]
+actors:[{"ActorId":1,"Character":"Peter Parker"}]
+onCinema:true
+premiere:2019-06-28
+
+
+Cinemas body:raw:json
+{
+    "name": "Moviecenter"
+}
+
+Genres body:raw:json
+{
+    "name": "Moviecenter"
+}
+
+
+------------------------- CUENTAS:
+
+Importante: Cada instancia de Postman (tabs) es independiente a las demás, si te logueas en una no estás logueado en las demás automáticamente.
+
+Registro:
+https://localhost:7015/api/accounts/register
+{
+	"email":"a@a.com",
+	"password":"Aa1234."
+}
+
+Viene del SeedData:
+{
+	"email":"usuario@testing.com",
+	"password":"Aa1234."
+}
+
+
+
+------> "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6ImFAYS5jb20iLCJleHAiOjE3MjQ2OTg1MTZ9.cTBxqLs-Eiqpo1E8YUlNu-oDrhMOdwUqwPamHxDMFsk",
+
+Login usuarios Buildy:
+
+1) Admin:
+
+https://localhost:7015/api/accounts/login
+{
+	"email":"admin@buildy2.uy",
+	"password":"Aa1234."
+}
+
+2) Normal:
+{
+	"email":"normal@buildy2.uy",
+	"password":"Aa1234."
+}
+
+
+Para las pruebas (endpoints con authorization):
+1. Colocar token en Postman -> Auth:
+    Bearer -> Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6ImFAYS5jb20iLCJleHAiOjE3MjQ2OTg1MTZ9.cTBxqLs-Eiqpo1E8YUlNu-oDrhMOdwUqwPamHxDMFsk",
+2. POST https://localhost:7015/api/accounts/login
+
+
+// -- *****************************************************************
+
+PUT
+
+{ 
+"name": "Aventura ID 1"
+}
+
+
+// -- *****************************************************************
+
+PATCH
+
+Movies body:raw:json
+[
+    { 
+    "op": "replace", 
+    "path": "/title", 
+    "value": "Pelicula 3" 
+    }
+]
+
+
+// -- *****************************************************************
+
+DELETE
+
+
+--
