@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Core.Helpers;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -15,15 +16,17 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/owners")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class OwnersController : CustomBaseController<Owner> // Notice <Owner> here
+    public class OwnersController : CustomBaseController<Owner>
     {
-        private readonly IOwnerRepository _ownerRepository; // Servicio que contiene la lógica principal de negocio para ownersDS.
+        private readonly IOwnerRepository _ownerRepository;
+        private readonly IMessage<Owner> _message;
 
-        public OwnersController(ILogger<OwnersController> logger, IMapper mapper, IOwnerRepository ownerRepository)
+        public OwnersController(ILogger<OwnersController> logger, IMapper mapper, IOwnerRepository ownerRepository, IMessage<Owner> message)
         : base(mapper, logger, ownerRepository)
         {
             _response = new();
             _ownerRepository = ownerRepository;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -59,17 +62,17 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] OwnerCreateDTO ownerCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] OwnerCreateDTO dto)
         {
-            ownerCreateDTO.Name = Utils.ToCamelCase(ownerCreateDTO.Name);
-            return await Put<OwnerCreateDTO, OwnerDTO, Owner>(id, ownerCreateDTO);
+            dto.Name = Utils.ToCamelCase(dto.Name);
+            return await Put<OwnerCreateDTO, OwnerDTO, Owner>(id, dto);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<OwnerPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<OwnerPatchDTO> dto)
         {
-            return await Patch<Owner, OwnerPatchDTO>(id, patchDto);
+            return await Patch<Owner, OwnerPatchDTO>(id, dto);
         }
 
         #endregion
@@ -78,35 +81,35 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateOwner")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] OwnerCreateDTO ownerCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] OwnerCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _ownerRepository.Get(v => v.Name.ToLower() == ownerCreateDto.Name.ToLower()) != null)
+                if (await _ownerRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, ownerCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, ownerCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, ownerCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                ownerCreateDto.Name = Utils.ToCamelCase(ownerCreateDto.Name);
-                Owner modelo = _mapper.Map<Owner>(ownerCreateDto);
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                Owner modelo = _mapper.Map<Owner>(dto);
                 modelo.Creation = DateTime.Now;
                 modelo.Update = DateTime.Now;
 
                 await _ownerRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                _logger.LogInformation(_message.Created(modelo.Id, modelo.Name));
 
                 _response.Result = _mapper.Map<OwnerDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;

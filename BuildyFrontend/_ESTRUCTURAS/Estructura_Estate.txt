@@ -223,7 +223,7 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
 
     [HttpPatch("{id:int}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-    public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<EstatePatchDTO> patchDto)
+    public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<EstatePatchDTO> dto)
     {
         return await Patch<Estate, EstatePatchDTO>(id, patchDto);
     }
@@ -240,8 +240,8 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
             {
                 if (!ModelState.IsValid)
                 {
-                                        _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                                        _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -273,7 +273,7 @@ public class EstatesController : CustomBaseController<Estate> // Notice <Estate>
                 modelo.Update = DateTime.Now;
 
                 await _estateRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
 
                 _response.Result = _mapper.Map<EstateDTO>(modelo);
                 _response.StatusCode = HttpStatusCode.Created;

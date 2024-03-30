@@ -10,6 +10,7 @@ using System.Net;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.Infrastructure.DbContext;
 using BuildyBackend.Infrastructure.Services;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -22,14 +23,17 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly IWorkerRepository _workerRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
+        private readonly IMessage<Worker> _message;
 
-        public WorkersController(ILogger<WorkersController> logger, IMapper mapper, IWorkerRepository workerRepository, ILogService logService, ContextDB dbContext)
+
+        public WorkersController(ILogger<WorkersController> logger, IMapper mapper, IWorkerRepository workerRepository, ILogService logService, ContextDB dbContext, IMessage<Worker> message)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
             _workerRepository = workerRepository;
             _logService = logService;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -77,8 +81,8 @@ namespace BuildyBackend.UI.Controllers.V1
         {
             try
             {
-                var worker = await _workerRepository.Get(x => x.Id == id, tracked: true);
-                if (worker == null)
+                var model = await _workerRepository.Get(x => x.Id == id, tracked: true);
+                if (model == null)
                 {
                     _logger.LogError($"Trabajador no encontrado ID = {id}.");
                     _response.ErrorMessages = new() { $"Trabajador no encontrado ID = {id}." };
@@ -86,10 +90,10 @@ namespace BuildyBackend.UI.Controllers.V1
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound($"Trabajador no encontrado ID = {id}.");
                 }
-                await _workerRepository.Remove(worker);
+                await _workerRepository.Remove(model);
 
-                _logger.LogInformation($"Se eliminó correctamente el trabajador Id:{id}.");
-                await _logService.LogAction("Worker", "Delete", $"Id:{worker.Id}, Nombre: {worker.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Worker", "Delete", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
@@ -105,22 +109,22 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] WorkerCreateDTO workerCreateDto)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] WorkerCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -135,8 +139,8 @@ namespace BuildyBackend.UI.Controllers.V1
                     },
                 };
 
-                var worker = await _workerRepository.Get(v => v.Id == id, includes: includes);
-                if (worker == null)
+                var model = await _workerRepository.Get(v => v.Id == id, includes: includes);
+                if (model == null)
                 {
                     _logger.LogError($"Trabajo no encontrado ID = {id}.");
                     _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
@@ -145,20 +149,20 @@ namespace BuildyBackend.UI.Controllers.V1
                     return NotFound(_response);
                 }
 
-                worker.Name = Utils.ToCamelCase(workerCreateDto.Name);
-                worker.Comments = Utils.ToCamelCase(workerCreateDto.Comments);
-                worker.Phone = workerCreateDto.Phone;
-                worker.Email = workerCreateDto.Email;
-                worker.IdentityDocument = workerCreateDto.IdentityDocument;
-                worker.Comments = workerCreateDto.Comments;
-                worker.JobId = workerCreateDto.JobId;
-                worker.Job = await _dbContext.Job.FindAsync(workerCreateDto.JobId);
-                worker.Update = DateTime.Now;
+                model.Name = Utils.ToCamelCase(dto.Name);
+                model.Comments = Utils.ToCamelCase(dto.Comments);
+                model.Phone = dto.Phone;
+                model.Email = dto.Email;
+                model.IdentityDocument = dto.IdentityDocument;
+                model.Comments = dto.Comments;
+                model.JobId = dto.JobId;
+                model.Job = await _dbContext.Job.FindAsync(dto.JobId);
+                model.Update = DateTime.Now;
 
-                var updatedWorker = await _workerRepository.Update(worker);
+                var updatedWorker = await _workerRepository.Update(model);
 
-                _logger.LogInformation($"Se actualizó correctamente el trabajador Id:{id}.");
-                await _logService.LogAction("Worker", "Update", $"Id:{worker.Id}, Nombre: {worker.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Worker", "Update", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.Result = _mapper.Map<WorkerDTO>(updatedWorker);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -176,9 +180,9 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<WorkerPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<WorkerPatchDTO> dto)
         {
-            return await Patch<Worker, WorkerPatchDTO>(id, patchDto);
+            return await Patch<Worker, WorkerPatchDTO>(id, dto);
         }
 
         #endregion
@@ -186,45 +190,45 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints específicos
 
         [HttpPost(Name = "CreateWorker")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] WorkerCreateDTO workerCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] WorkerCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _workerRepository.Get(v => v.Name.ToLower() == workerCreateDto.Name.ToLower()) != null)
+                if (await _workerRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError($"El nombre {workerCreateDto.Name} ya existe en el sistema");
-                    _response.ErrorMessages = new() { $"El nombre {workerCreateDto.Name} ya existe en el sistema." };
+                    _logger.LogError($"El nombre {dto.Name} ya existe en el sistema");
+                    _response.ErrorMessages = new() { $"El nombre {dto.Name} ya existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, workerCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                workerCreateDto.Name = Utils.ToCamelCase(workerCreateDto.Name);
-                workerCreateDto.Comments = Utils.ToCamelCase(workerCreateDto.Comments);
-                Worker worker = _mapper.Map<Worker>(workerCreateDto);
-                worker.Creation = DateTime.Now;
-                worker.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                dto.Comments = Utils.ToCamelCase(dto.Comments);
+                Worker model = _mapper.Map<Worker>(dto);
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _workerRepository.Create(worker);
+                await _workerRepository.Create(model);
 
-                _logger.LogInformation($"Se creó correctamente el trabajador Id:{worker.Id}.");
-                await _logService.LogAction("Worker", "Create", $"Id:{worker.Id}, Nombre: {worker.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
+                await _logService.LogAction("Worker", "Create", _message.ActionLog(model.Id, model.Name), User.Identity.Name);
 
-                _response.Result = _mapper.Map<WorkerDTO>(worker);
+                _response.Result = _mapper.Map<WorkerDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = worker.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

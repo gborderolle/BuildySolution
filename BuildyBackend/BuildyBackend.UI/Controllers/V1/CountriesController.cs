@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Core.Helpers;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -15,15 +16,17 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/countries")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CountriesController : CustomBaseController<Country> // Notice <Country> here
+    public class CountriesController : CustomBaseController<Country>
     {
-        private readonly ICountryRepository _countryRepository; // Servicio que contiene la lógica principal de negocio para CountriesDS.
+        private readonly ICountryRepository _countryRepository;
+        private readonly IMessage<Country> _message;
 
-        public CountriesController(ILogger<CountriesController> logger, IMapper mapper, ICountryRepository countryRepository)
+        public CountriesController(ILogger<CountriesController> logger, IMapper mapper, ICountryRepository countryRepository, IMessage<Country> message)
         : base(mapper, logger, countryRepository)
         {
             _response = new();
             _countryRepository = countryRepository;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -59,17 +62,17 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CountryCreateDTO countryCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CountryCreateDTO dto)
         {
-            countryCreateDTO.Name = Utils.ToCamelCase(countryCreateDTO.Name);
-            return await Put<CountryCreateDTO, CountryDTO, Country>(id, countryCreateDTO);
+            dto.Name = Utils.ToCamelCase(dto.Name);
+            return await Put<CountryCreateDTO, CountryDTO, Country>(id, dto);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CountryPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CountryPatchDTO> dto)
         {
-            return await Patch<Country, CountryPatchDTO>(id, patchDto);
+            return await Patch<Country, CountryPatchDTO>(id, dto);
         }
 
         #endregion
@@ -78,42 +81,42 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateCountry")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO countryCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _countryRepository.Get(v => v.Name.ToLower() == countryCreateDto.Name.ToLower()) != null)
+                if (await _countryRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, countryCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, countryCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, countryCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                countryCreateDto.Name = Utils.ToCamelCase(countryCreateDto.Name);
-                Country modelo = _mapper.Map<Country>(countryCreateDto);
-                modelo.Creation = DateTime.Now;
-                modelo.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                Country model = _mapper.Map<Country>(dto);
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _countryRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                await _countryRepository.Create(model);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
 
-                _response.Result = _mapper.Map<CountryDTO>(modelo);
+                _response.Result = _mapper.Map<CountryDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

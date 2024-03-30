@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Infrastructure.Services;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -17,15 +18,16 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/jobs")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class JobsController : CustomBaseController<Job> // Notice <Job> here
+    public class JobsController : CustomBaseController<Job>
     {
-        private readonly IJobRepository _jobRepository; // Servicio que contiene la lógica principal de negocio para Jobs.
+        private readonly IJobRepository _jobRepository;
         private readonly IPhotoRepository _photoRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
         private readonly IFileStorage _fileStorage;
+        private readonly IMessage<Job> _message;
 
-        public JobsController(ILogger<JobsController> logger, IMapper mapper, IJobRepository jobRepository, IPhotoRepository photoRepository, IFileStorage fileStorage, ILogService logService, ContextDB dbContext)
+        public JobsController(ILogger<JobsController> logger, IMapper mapper, IJobRepository jobRepository, IPhotoRepository photoRepository, IFileStorage fileStorage, ILogService logService, ContextDB dbContext, IMessage<Job> message)
         : base(mapper, logger, jobRepository)
         {
             _response = new();
@@ -34,6 +36,7 @@ namespace BuildyBackend.UI.Controllers.V1
             _fileStorage = fileStorage;
             _logService = logService;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -92,7 +95,7 @@ namespace BuildyBackend.UI.Controllers.V1
         {
             try
             {
-                var job = await _jobRepository.Get(x => x.Id == id, tracked: true, includes: new List<IncludePropertyConfiguration<Job>>
+                var model = await _jobRepository.Get(x => x.Id == id, tracked: true, includes: new List<IncludePropertyConfiguration<Job>>
         {
             new IncludePropertyConfiguration<Job>
             {
@@ -100,7 +103,7 @@ namespace BuildyBackend.UI.Controllers.V1
             }
         });
 
-                if (job == null)
+                if (model == null)
                 {
                     _logger.LogError($"Obra no encontrada ID = {id}.");
                     _response.ErrorMessages = new() { $"Obra no encontrada ID = {id}." };
@@ -111,11 +114,11 @@ namespace BuildyBackend.UI.Controllers.V1
                 string container = null;
 
                 // Eliminar las fotos asociadas
-                if (job.ListPhotos != null)
+                if (model.ListPhotos != null)
                 {
-                    foreach (var photo in job.ListPhotos)
+                    foreach (var photo in model.ListPhotos)
                     {
-                        container = $"uploads/jobs/estate{job.EstateId}/{photo.Creation.ToString("yyyy_MM")}/job{job.Id}";
+                        container = $"uploads/jobs/estate{model.EstateId}/{photo.Creation.ToString("yyyy_MM")}/job{model.Id}";
                         await _fileStorage.DeleteFile(photo.URL, container);
                         _dbContext.Photo.Remove(photo); // Asegúrate de que el contexto de la base de datos sea correcto
                     }
@@ -126,10 +129,10 @@ namespace BuildyBackend.UI.Controllers.V1
                     // Eliminar la carpeta del contenedor una sola vez
                     await _fileStorage.DeleteFolder(container);
                 }
-                await _jobRepository.Remove(job);
+                await _jobRepository.Remove(model);
 
-                _logger.LogInformation($"Se eliminó correctamente la obra Id:{id}.");
-                await _logService.LogAction("Job", "Delete", $"Id:{job.Id}, Nombre: {job.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Job", "Delete", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
@@ -146,73 +149,73 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Consumes("multipart/form-data")] // Asegura que el método acepte multipart/form-data
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromForm] JobCreateDTO jobCreateDto)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromForm] JobCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
 
-                var estate = await _dbContext.Estate.FindAsync(jobCreateDto.EstateId);
+                var estate = await _dbContext.Estate.FindAsync(dto.EstateId);
                 if (estate == null)
                 {
-                    _logger.LogError($"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema." };
+                    _logger.LogError($"La propiedad ID={dto.EstateId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"La propiedad ID={dto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={dto.EstateId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
-                var job = await _jobRepository.Get(v => v.Id == id, includes: new List<IncludePropertyConfiguration<Job>> {
+                var model = await _jobRepository.Get(v => v.Id == id, includes: new List<IncludePropertyConfiguration<Job>> {
                     new IncludePropertyConfiguration<Job> { IncludeExpression = b => b.ListWorkers },
                     new IncludePropertyConfiguration<Job> { IncludeExpression = b => b.ListPhotos }
                 });
 
-                if (job == null)
+                if (model == null)
                 {
-                    _logger.LogError($"Trabajo no encontrado ID = {id}.");
-                    _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
+                    _logger.LogError(_message.NotFound(id));
+                    _response.ErrorMessages = new() { _message.NotFound(id) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                job.Name = Utils.ToCamelCase(str: jobCreateDto.Name);
-                job.Comments = Utils.ToCamelCase(str: jobCreateDto.Comments);
-                job.Month = jobCreateDto.Month;
-                job.LabourCost = jobCreateDto.LabourCost;
-                job.Comments = jobCreateDto.Comments;
-                job.EstateId = jobCreateDto.EstateId;
-                job.Estate = await _dbContext.Estate.FindAsync(jobCreateDto.EstateId);
-                job.Update = DateTime.Now;
+                model.Name = Utils.ToCamelCase(str: dto.Name);
+                model.Comments = Utils.ToCamelCase(str: dto.Comments);
+                model.Month = dto.Month;
+                model.LabourCost = dto.LabourCost;
+                model.Comments = dto.Comments;
+                model.EstateId = dto.EstateId;
+                model.Estate = await _dbContext.Estate.FindAsync(dto.EstateId);
+                model.Update = DateTime.Now;
 
-                if (jobCreateDto.WorkerIds != null)
+                if (dto.WorkerIds != null)
                 {
                     // Primero, limpia la lista actual de trabajadores
-                    job.ListWorkers.Clear();
+                    model.ListWorkers.Clear();
 
                     // Luego, agrega los nuevos trabajadores basado en los IDs
-                    foreach (var workerId in jobCreateDto.WorkerIds)
+                    foreach (var workerId in dto.WorkerIds)
                     {
                         var worker = await _dbContext.Worker.FindAsync(workerId);
                         if (worker != null)
                         {
-                            job.ListWorkers.Add(worker);
+                            model.ListWorkers.Add(worker);
                         }
                         else
                         {
@@ -221,15 +224,15 @@ namespace BuildyBackend.UI.Controllers.V1
                     }
                 }
 
-                var updatedJob = await _jobRepository.Update(job);
+                var updatedJob = await _jobRepository.Update(model);
 
-                if (jobCreateDto.ListPhotos != null && jobCreateDto.ListPhotos.Count > 0)
+                if (dto.ListPhotos != null && dto.ListPhotos.Count > 0)
                 {
-                    string dynamicContainer = $"uploads/jobs/estate{estate.Id}/{DateTime.Now:yyyy_MM}/job{job.Id}";
-                    foreach (var photoForm in jobCreateDto.ListPhotos)
+                    string dynamicContainer = $"uploads/jobs/estate{estate.Id}/{DateTime.Now:yyyy_MM}/job{model.Id}";
+                    foreach (var photoForm in dto.ListPhotos)
                     {
                         Photo newPhoto = new();
-                        newPhoto.Job = job;
+                        newPhoto.Job = model;
 
                         using (var stream = new MemoryStream())
                         {
@@ -242,8 +245,8 @@ namespace BuildyBackend.UI.Controllers.V1
                     }
                 }
 
-                _logger.LogInformation($"Se actualizó correctamente la obra Id:{id}.");
-                await _logService.LogAction("Job", "Update", $"Id:{job.Id}, Nombre: {job.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Job", "Update", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.Result = _mapper.Map<JobDTO>(updatedJob);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -261,9 +264,9 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<JobDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<JobDTO> dto)
         {
-            return await Patch<Job, JobDTO>(id, patchDto);
+            return await Patch<Job, JobDTO>(id, dto);
         }
 
         #endregion
@@ -271,7 +274,7 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints específicos
 
         [HttpPost(Name = "CreateJob")]
-        public async Task<ActionResult<APIResponse>> Post([FromForm] JobCreateDTO jobCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromForm] JobCreateDTO dto)
         {
             try
             {
@@ -283,45 +286,45 @@ namespace BuildyBackend.UI.Controllers.V1
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(ModelState);
                 }
-                var estate = await _dbContext.Estate.FindAsync(jobCreateDto.EstateId);
+                var estate = await _dbContext.Estate.FindAsync(dto.EstateId);
                 if (estate == null)
                 {
-                    _logger.LogError($"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema." };
+                    _logger.LogError($"La propiedad ID={dto.EstateId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"La propiedad ID={dto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={jobCreateDto.EstateId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={dto.EstateId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
                 using (var transaction = await _dbContext.Database.BeginTransactionAsync())
                 {
-                    jobCreateDto.Name = Utils.ToCamelCase(jobCreateDto.Name);
-                    jobCreateDto.Comments = Utils.ToCamelCase(jobCreateDto.Comments);
-                    Job job = _mapper.Map<Job>(jobCreateDto);
-                    job.Estate = estate;
-                    job.Creation = DateTime.Now;
-                    job.Update = DateTime.Now;
+                    dto.Name = Utils.ToCamelCase(dto.Name);
+                    dto.Comments = Utils.ToCamelCase(dto.Comments);
+                    Job model = _mapper.Map<Job>(dto);
+                    model.Estate = estate;
+                    model.Creation = DateTime.Now;
+                    model.Update = DateTime.Now;
 
-                    foreach (var workerId in jobCreateDto.WorkerIds)
+                    foreach (var workerId in dto.WorkerIds)
                     {
                         var worker = await _dbContext.Worker.FindAsync(workerId);
                         if (worker == null)
                         {
                             return NotFound($"El trabajador ID={workerId} no existe en el sistema.");
                         }
-                        job.ListWorkers.Add(worker);
+                        model.ListWorkers.Add(worker);
                     }
 
-                    await _jobRepository.Create(job);
+                    await _jobRepository.Create(model);
 
-                    if (jobCreateDto.ListPhotos != null && jobCreateDto.ListPhotos.Count > 0)
+                    if (dto.ListPhotos != null && dto.ListPhotos.Count > 0)
                     {
-                        string dynamicContainer = $"uploads/jobs/estate{estate.Id}/{DateTime.Now:yyyy_MM}/job{job.Id}";
-                        foreach (var photoForm in jobCreateDto.ListPhotos)
+                        string dynamicContainer = $"uploads/jobs/estate{estate.Id}/{DateTime.Now:yyyy_MM}/job{model.Id}";
+                        foreach (var photoForm in dto.ListPhotos)
                         {
                             Photo newPhoto = new();
-                            newPhoto.Job = job;
+                            newPhoto.Job = model;
 
                             using (var stream = new MemoryStream())
                             {
@@ -337,13 +340,13 @@ namespace BuildyBackend.UI.Controllers.V1
 
                     await transaction.CommitAsync();
 
-                    _logger.LogInformation($"Se creó correctamente la obra Id:{job.Id}.");
-                    await _logService.LogAction("Job", "Create", $"Id:{job.Id}, Nombre: {job.Name}.", User.Identity.Name);
+                    _logger.LogInformation(_message.Created(model.Id, model.Name));
+                    await _logService.LogAction("Job", "Create", _message.ActionLog(model.Id, model.Name), User.Identity.Name);
 
-                    _response.Result = _mapper.Map<JobDTO>(job);
+                    _response.Result = _mapper.Map<JobDTO>(model);
                     _response.StatusCode = HttpStatusCode.Created;
 
-                    return CreatedAtAction(nameof(Get), new { id = job.Id }, _response);
+                    return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
                 }
             }
             catch (Exception ex)

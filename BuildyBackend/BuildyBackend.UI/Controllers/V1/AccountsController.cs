@@ -18,6 +18,7 @@ using BuildyBackend.Core.Helpers;
 using BuildyBackend.Core.Domain.IdentityEntities;
 using BuildyBackend.Infrastructure.Services;
 using BuildyBackend.Core.Enums;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -40,6 +41,8 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly ContextDB _contextDB;
         private APIResponse _response;
         private readonly IWebHostEnvironment _environment;
+        private readonly IMessage<BuildyUserMessage> _messageUser;
+        private readonly IMessage<BuildyRoleMessage> _messageRole;
 
         public AccountsController
         (
@@ -54,7 +57,9 @@ namespace BuildyBackend.UI.Controllers.V1
             RoleManager<BuildyRole> roleManager,
             ILogService logService,
             ContextDB dbContext,
-            IWebHostEnvironment environment
+            IWebHostEnvironment environment,
+            IMessage<BuildyUserMessage> messageUser,
+            IMessage<BuildyRoleMessage> messageRole
         )
         {
             _response = new();
@@ -70,6 +75,8 @@ namespace BuildyBackend.UI.Controllers.V1
             _logService = logService;
             _contextDB = dbContext;
             _environment = environment;
+            _messageUser = messageUser;
+            _messageRole = messageRole;
         }
 
         #region Endpoints genéricos
@@ -205,28 +212,28 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPost("CreateUser")] //api/accounts/CreateUser
-        public async Task<ActionResult<APIResponse>> CreateUser(BuilderUserCreateDTO builderUserCreateDTO)
+        public async Task<ActionResult<APIResponse>> CreateUser(BuilderUserCreateDTO dto)
         {
             try
             {
                 var user = new BuildyUser
                 {
-                    UserName = builderUserCreateDTO.Username,
-                    Name = builderUserCreateDTO.Name,
-                    Email = builderUserCreateDTO.Email,
+                    UserName = dto.Username,
+                    Name = dto.Name,
+                    Email = dto.Email,
                 };
-                var result = await _userManager.CreateAsync(user, builderUserCreateDTO.Password);
+                var result = await _userManager.CreateAsync(user, dto.Password);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Registración correcta.");
-                    await _logService.LogAction("Account", "Create", $"Username: {builderUserCreateDTO.Username}, Rol: {builderUserCreateDTO.UserRoleId}.", builderUserCreateDTO.Username);
+                    _logger.LogInformation(_messageUser.Created(0, user.UserName));
+                    await _logService.LogAction("Account", "Create", $"Username: {dto.Username}, Rol: {dto.UserRoleId}.", dto.Username);
 
                     _response.StatusCode = HttpStatusCode.OK;
 
                     // Asignar el rol al usuario
-                    if (!string.IsNullOrEmpty(builderUserCreateDTO.UserRoleId))
+                    if (!string.IsNullOrEmpty(dto.UserRoleId))
                     {
-                        var roleResult = await _userManager.AddToRoleAsync(user, builderUserCreateDTO.UserRoleName);
+                        var roleResult = await _userManager.AddToRoleAsync(user, dto.UserRoleName);
                         if (!roleResult.Succeeded)
                         {
                             _response.IsSuccess = false;
@@ -238,7 +245,7 @@ namespace BuildyBackend.UI.Controllers.V1
                     var userCredential = new BuilderUserLoginDTO
                     {
                         Username = user.UserName,
-                        Password = builderUserCreateDTO.Password
+                        Password = dto.Password
                     };
                     _response.Result = await TokenSetup(userCredential);
                 }
@@ -262,7 +269,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("UpdateUser/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(UserTypeOptions.Admin))]
-        public async Task<ActionResult<APIResponse>> UpdateUser(string id, [FromBody] BuilderUserUpdateDTO builderUserUpdateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateUser(string id, [FromBody] BuilderUserUpdateDTO dto)
         {
             try
             {
@@ -275,9 +282,9 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 // Actualiza los campos del usuario
-                user.UserName = builderUserUpdateDTO.Username; // Si el email es también el nombre de usuario
-                user.Email = builderUserUpdateDTO.Email;
-                user.Name = builderUserUpdateDTO.Name;
+                user.UserName = dto.Username; // Si el email es también el nombre de usuario
+                user.Email = dto.Email;
+                user.Name = dto.Name;
 
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
@@ -289,15 +296,15 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 // Actualiza el rol si es necesario
-                if (!string.IsNullOrEmpty(builderUserUpdateDTO.UserRoleId))
+                if (!string.IsNullOrEmpty(dto.UserRoleId))
                 {
                     var roles = await _userManager.GetRolesAsync(user);
                     await _userManager.RemoveFromRolesAsync(user, roles);
-                    await _userManager.AddToRoleAsync(user, builderUserUpdateDTO.UserRoleName);
+                    await _userManager.AddToRoleAsync(user, dto.UserRoleName);
                 }
 
-                _logger.LogInformation("Usuario actualizado.");
-                await _logService.LogAction("Account", "Update", $"Username: {builderUserUpdateDTO.Username}, Rol: {builderUserUpdateDTO.UserRoleId}.", builderUserUpdateDTO.Username);
+                _logger.LogInformation(_messageUser.Updated(0, dto.Username));
+                await _logService.LogAction("Account", "Update", $"Username: {dto.Username}, Rol: {dto.UserRoleId}.", dto.Username);
 
                 _response.StatusCode = HttpStatusCode.OK;
                 _response.Result = _mapper.Map<UserDTO>(user); // Mapea el usuario actualizado a un DTO si es necesario
@@ -314,25 +321,25 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<ActionResult<APIResponse>> Login([FromBody] BuilderUserLoginDTO builderUserLoginDTO)
+        public async Task<ActionResult<APIResponse>> Login([FromBody] BuilderUserLoginDTO dto)
         {
             try
             {
                 // lockoutOnFailure: bloquea al usuario si tiene muchos intentos de logueo
-                var result = await _signInManager.PasswordSignInAsync(builderUserLoginDTO.Username, builderUserLoginDTO.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(dto.Username, dto.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Login correcto.");
-                    var user = await _userManager.FindByNameAsync(builderUserLoginDTO.Username);
+                    var user = await _userManager.FindByNameAsync(dto.Username);
                     var roles = await _userManager.GetRolesAsync(user); // Obtener roles del usuario
+                    _logger.LogInformation(((BuildyUserMessage)_messageUser).LoginSuccess(user.Id, user.UserName));
 
                     _response.StatusCode = HttpStatusCode.OK;
                     _response.Result = new
                     {
-                        Token = await TokenSetup(builderUserLoginDTO),
+                        Token = await TokenSetup(dto),
                         UserRoles = roles // Añade los roles del usuario aquí
                     };
-                    await SendLoginNotification(builderUserLoginDTO);
+                    await SendLoginNotification(dto);
                 }
                 else
                 {

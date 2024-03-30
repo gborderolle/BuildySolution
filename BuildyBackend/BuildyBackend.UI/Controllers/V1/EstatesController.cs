@@ -10,6 +10,7 @@ using System.Net;
 using BuildyBackend.Infrastructure.DbContext;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.Infrastructure.Services;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -29,8 +30,9 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly IFileRepository _fileRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
+        private readonly IMessage<Estate> _message;
 
-        public EstatesController(ILogger<EstatesController> logger, IMapper mapper, IEstateRepository estateRepository, IReportRepository reportRepository, IJobRepository jobRepository, IRentRepository rentRepository, IWorkerRepository workerRepository, ITenantRepository tenantRepository, IPhotoRepository photoRepository, ILogService logService, ContextDB dbContext, IFileRepository fileRepository)
+        public EstatesController(ILogger<EstatesController> logger, IMapper mapper, IEstateRepository estateRepository, IReportRepository reportRepository, IJobRepository jobRepository, IRentRepository rentRepository, IWorkerRepository workerRepository, ITenantRepository tenantRepository, IPhotoRepository photoRepository, ILogService logService, ContextDB dbContext, IFileRepository fileRepository, IMessage<Estate> message)
         : base(mapper, logger, estateRepository)
         {
             _response = new();
@@ -44,6 +46,7 @@ namespace BuildyBackend.UI.Controllers.V1
             _fileRepository = fileRepository;
             _logService = logService;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -155,7 +158,7 @@ namespace BuildyBackend.UI.Controllers.V1
             {
                 try
                 {
-                    var estate = await _estateRepository.Get(
+                    var model = await _estateRepository.Get(
                         x => x.Id == id,
                         tracked: true,
                         includes: new List<IncludePropertyConfiguration<Estate>>
@@ -165,17 +168,17 @@ namespace BuildyBackend.UI.Controllers.V1
                     new IncludePropertyConfiguration<Estate> { IncludeExpression = j => j.ListReports },
                         });
 
-                    if (estate == null)
+                    if (model == null)
                     {
-                        _logger.LogError($"Propiedad no encontrada ID = {id}.");
-                        _response.ErrorMessages = new() { $"Propiedad no encontrada ID = {id}." };
+                        _logger.LogError(_message.NotFound(id));
+                        _response.ErrorMessages = new() { _message.NotFound(id) };
                         _response.IsSuccess = false;
                         _response.StatusCode = HttpStatusCode.NotFound;
-                        return NotFound($"Propiedad no encontrada ID = {id}.");
+                        return NotFound(_message.NotFound(id));
                     }
 
                     // Asumiendo que tienes un repositorio para los trabajadores (Worker)
-                    foreach (var job in estate.ListJobs.ToList())
+                    foreach (var job in model.ListJobs.ToList())
                     {
                         var workersRelatedToJob = await _workerRepository.FindWorkersByJobId(job.Id);
                         foreach (var worker in workersRelatedToJob)
@@ -195,7 +198,7 @@ namespace BuildyBackend.UI.Controllers.V1
                         await _jobRepository.Remove(job);
                     }
 
-                    foreach (var rent in estate.ListRents.ToList())
+                    foreach (var rent in model.ListRents.ToList())
                     {
                         var tenantsRelatedToRent = await _tenantRepository.FindTenantsByRentId(rent.Id);
                         foreach (var tenant in tenantsRelatedToRent)
@@ -216,7 +219,7 @@ namespace BuildyBackend.UI.Controllers.V1
                     }
 
                     // Asumiendo que tienes un repositorio para los trabajadores (Worker)
-                    foreach (var report in estate.ListReports.ToList())
+                    foreach (var report in model.ListReports.ToList())
                     {
                         var photosRelatedToReport = await _photoRepository.FindPhotosByReportId(report.Id);
                         foreach (var photo in photosRelatedToReport)
@@ -229,12 +232,12 @@ namespace BuildyBackend.UI.Controllers.V1
                         await _reportRepository.Remove(report);
                     }
 
-                    await _estateRepository.Remove(estate);
+                    await _estateRepository.Remove(model);
                     await _dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    _logger.LogInformation($"Se eliminó correctamente la propiedad {estate.Name}.");
-                    await _logService.LogAction("Estate", "Delete", $"Id:{estate.Id}, Nombre: {estate.Name}.", User.Identity.Name);
+                    _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                    await _logService.LogAction("Estate", "Delete", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                     _response.StatusCode = HttpStatusCode.NoContent;
                     return Ok(_response);
@@ -252,22 +255,22 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] EstateCreateDTO estateCreateDto)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] EstateCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -297,30 +300,30 @@ namespace BuildyBackend.UI.Controllers.V1
                         IncludeExpression = b => b.ListRents
                     }
                 };
-                var estate = await _estateRepository.Get(v => v.Id == id, includes: includes);
-                if (estate == null)
+                var model = await _estateRepository.Get(v => v.Id == id, includes: includes);
+                if (model == null)
                 {
-                    _logger.LogError($"Propiedad no encontrada ID = {id}.");
-                    _response.ErrorMessages = new() { $"Propiedad no encontrada ID = {id}" };
+                    _logger.LogError(_message.NotFound(id));
+                    _response.ErrorMessages = new() { _message.NotFound(id) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
 
-                estate.Name = Utils.ToCamelCase(estateCreateDto.Name);
-                estate.Address = Utils.ToCamelCase(estateCreateDto.Address);
-                estate.Comments = Utils.ToCamelCase(estateCreateDto.Comments);
-                estate.LatLong = estateCreateDto.LatLong;
-                estate.GoogleMapsURL = estateCreateDto.GoogleMapsURL;
-                estate.City = await _dbContext.City.FindAsync(estateCreateDto.CityId);
-                estate.Owner = await _dbContext.Owner.FindAsync(estateCreateDto.OwnerId);
-                estate.Comments = estateCreateDto.Comments;
-                estate.Update = DateTime.Now;
+                model.Name = Utils.ToCamelCase(dto.Name);
+                model.Address = Utils.ToCamelCase(dto.Address);
+                model.Comments = Utils.ToCamelCase(dto.Comments);
+                model.LatLong = dto.LatLong;
+                model.GoogleMapsURL = dto.GoogleMapsURL;
+                model.City = await _dbContext.City.FindAsync(dto.CityId);
+                model.Owner = await _dbContext.Owner.FindAsync(dto.OwnerId);
+                model.Comments = dto.Comments;
+                model.Update = DateTime.Now;
 
-                var updatedEstate = await _estateRepository.Update(estate);
+                var updatedEstate = await _estateRepository.Update(model);
 
-                _logger.LogInformation($"Se actualizó correctamente la propiedad {estate.Name}.");
-                await _logService.LogAction("Estate", "Update", $"Id:{estate.Id}, Nombre: {estate.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Estate", "Update", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.Result = _mapper.Map<EstateDTO>(updatedEstate);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -338,9 +341,9 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<EstatePatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<EstatePatchDTO> dto)
         {
-            return await Patch<Estate, EstatePatchDTO>(id, patchDto);
+            return await Patch<Estate, EstatePatchDTO>(id, dto);
         }
 
         #endregion
@@ -348,68 +351,68 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints específicos
 
         [HttpPost(Name = "CreateEstate")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] EstateCreateDTO estateCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] EstateCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _estateRepository.Get(v => v.Name.ToLower() == estateCreateDto.Name.ToLower()) != null)
+                if (await _estateRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, estateCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                var city = await _dbContext.City.FindAsync(estateCreateDto.CityId);
+                var city = await _dbContext.City.FindAsync(dto.CityId);
                 if (city == null)
                 {
-                    _logger.LogError($"La ciudad ID={estateCreateDto.CityId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema." };
+                    _logger.LogError($"La ciudad ID={dto.CityId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"La ciudad ID={dto.CityId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={estateCreateDto.CityId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La ciudad ID={dto.CityId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
-                var owner = await _dbContext.Owner.FindAsync(estateCreateDto.OwnerId);
+                var owner = await _dbContext.Owner.FindAsync(dto.OwnerId);
                 if (owner == null)
                 {
-                    _logger.LogError($"La ciudad ID={estateCreateDto.OwnerId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema." };
+                    _logger.LogError($"El dueño ID={dto.OwnerId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"El dueño ID={dto.OwnerId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El dueño ID={estateCreateDto.OwnerId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"El dueño ID={dto.OwnerId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
-                estateCreateDto.Name = Utils.ToCamelCase(estateCreateDto.Name);
-                estateCreateDto.Address = Utils.ToCamelCase(estateCreateDto.Address);
-                estateCreateDto.Comments = Utils.ToCamelCase(estateCreateDto.Comments);
-                Estate estate = _mapper.Map<Estate>(estateCreateDto);
-                estate.City = city;
-                estate.Owner = owner;
-                estate.Creation = DateTime.Now;
-                estate.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                dto.Address = Utils.ToCamelCase(dto.Address);
+                dto.Comments = Utils.ToCamelCase(dto.Comments);
+                Estate model = _mapper.Map<Estate>(dto);
+                model.City = city;
+                model.Owner = owner;
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _estateRepository.Create(estate);
-                _logger.LogInformation($"Se creó correctamente la propiedad {estate.Name}.");
-                await _logService.LogAction("Estate", "Create", $"Id:{estate.Id}, Nombre: {estate.Name}.", User.Identity.Name);
+                await _estateRepository.Create(model);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Estate", "Create", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
-                _response.Result = _mapper.Map<EstateDTO>(estate);
+                _response.Result = _mapper.Map<EstateDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetEstateById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = estate.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

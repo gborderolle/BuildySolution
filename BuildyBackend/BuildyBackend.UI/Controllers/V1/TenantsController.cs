@@ -10,6 +10,7 @@ using System.Net;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.Infrastructure.DbContext;
 using BuildyBackend.Infrastructure.Services;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -22,14 +23,16 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly ITenantRepository _tenantRepository; // Servicio que contiene la lógica principal de negocio para Tenants.
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
+        private readonly IMessage<Tenant> _message;
 
-        public TenantsController(ILogger<TenantsController> logger, IMapper mapper, ITenantRepository tenantRepository, ILogService logService, ContextDB dbContext)
+        public TenantsController(ILogger<TenantsController> logger, IMapper mapper, ITenantRepository tenantRepository, ILogService logService, ContextDB dbContext, IMessage<Tenant> message)
         : base(mapper, logger, tenantRepository)
         {
             _response = new();
             _tenantRepository = tenantRepository;
             _logService = logService;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -75,8 +78,8 @@ namespace BuildyBackend.UI.Controllers.V1
         {
             try
             {
-                var tenant = await _tenantRepository.Get(x => x.Id == id, tracked: true);
-                if (tenant == null)
+                var model = await _tenantRepository.Get(x => x.Id == id, tracked: true);
+                if (model == null)
                 {
                     _logger.LogError($"Inquilino no encontrado ID = {id}.");
                     _response.ErrorMessages = new() { $"Inquilino no encontrado ID = {id}." };
@@ -84,10 +87,10 @@ namespace BuildyBackend.UI.Controllers.V1
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound($"Inquilino no encontrado ID = {id}.");
                 }
-                await _tenantRepository.Remove(tenant);
+                await _tenantRepository.Remove(model);
 
-                _logger.LogInformation($"Se eliminó correctamente el inquilino Id:{id}.");
-                await _logService.LogAction("Tenant", "Delete", $"Id:{tenant.Id}, Nombre: {tenant.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Tenant", "Delete", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
@@ -103,22 +106,22 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] TenantCreateDTO tenantCreateDto)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] TenantCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -133,8 +136,8 @@ namespace BuildyBackend.UI.Controllers.V1
                     },
                 };
 
-                var tenant = await _tenantRepository.Get(filter: v => v.Id == id, includes: includes);
-                if (tenant == null)
+                var model = await _tenantRepository.Get(filter: v => v.Id == id, includes: includes);
+                if (model == null)
                 {
                     _logger.LogError($"Trabajo no encontrado ID = {id}.");
                     _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
@@ -143,21 +146,21 @@ namespace BuildyBackend.UI.Controllers.V1
                     return NotFound(_response);
                 }
 
-                tenant.Name = Utils.ToCamelCase(tenantCreateDto.Name);
-                tenant.Comments = Utils.ToCamelCase(tenantCreateDto.Comments);
-                tenant.Phone1 = tenantCreateDto.Phone1;
-                tenant.Phone2 = tenantCreateDto.Phone2;
-                tenant.Email = tenantCreateDto.Email;
-                tenant.IdentityDocument = tenantCreateDto.IdentityDocument;
-                tenant.Comments = tenantCreateDto.Comments;
-                tenant.RentId = tenantCreateDto.RentId;
-                tenant.Rent = await _dbContext.Rent.FindAsync(tenantCreateDto.RentId);
-                tenant.Update = DateTime.Now;
+                model.Name = Utils.ToCamelCase(dto.Name);
+                model.Comments = Utils.ToCamelCase(dto.Comments);
+                model.Phone1 = dto.Phone1;
+                model.Phone2 = dto.Phone2;
+                model.Email = dto.Email;
+                model.IdentityDocument = dto.IdentityDocument;
+                model.Comments = dto.Comments;
+                model.RentId = dto.RentId;
+                model.Rent = await _dbContext.Rent.FindAsync(dto.RentId);
+                model.Update = DateTime.Now;
 
-                var updatedTenant = await _tenantRepository.Update(tenant);
+                var updatedTenant = await _tenantRepository.Update(model);
 
-                _logger.LogInformation($"Se actualizó correctamente el inquilino Id:{id}.");
-                await _logService.LogAction("Tenant", "Update", $"Id:{tenant.Id}, Nombre: {tenant.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Tenant", "Update", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.Result = _mapper.Map<EstateDTO>(updatedTenant);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -175,9 +178,9 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<TenantPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<TenantPatchDTO> dto)
         {
-            return await Patch<Tenant, TenantPatchDTO>(id, patchDto);
+            return await Patch<Tenant, TenantPatchDTO>(id, dto);
         }
 
         #endregion
@@ -185,45 +188,45 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints específicos
 
         [HttpPost(Name = "CreateTenant")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] TenantCreateDTO tenantCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] TenantCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _tenantRepository.Get(v => v.Name.ToLower() == tenantCreateDto.Name.ToLower()) != null)
+                if (await _tenantRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, tenantCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, tenantCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, tenantCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                tenantCreateDto.Name = Utils.ToCamelCase(tenantCreateDto.Name);
-                tenantCreateDto.Comments = Utils.ToCamelCase(tenantCreateDto.Comments);
-                Tenant tenant = _mapper.Map<Tenant>(tenantCreateDto);
-                tenant.Creation = DateTime.Now;
-                tenant.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                dto.Comments = Utils.ToCamelCase(dto.Comments);
+                Tenant model = _mapper.Map<Tenant>(dto);
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _tenantRepository.Create(tenant);
+                await _tenantRepository.Create(model);
 
-                _logger.LogInformation($"Se creó correctamente el inquilino Id:{tenant.Id}.");
-                await _logService.LogAction("Tenant", "Create", $"Id:{tenant.Id}, Nombre: {tenant.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
+                await _logService.LogAction("Tenant", "Create", _message.ActionLog(model.Id, model.Name), User.Identity.Name);
 
-                _response.Result = _mapper.Map<TenantDTO>(tenant);
+                _response.Result = _mapper.Map<TenantDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetCountryById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = tenant.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

@@ -188,7 +188,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ReportPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ReportPatchDTO> dto)
         {
             return await Patch<Report, ReportPatchDTO>(id, patchDto);
         }
@@ -205,8 +205,8 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
             {
                 if (!ModelState.IsValid)
                 {
-                                        _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                                        _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -238,7 +238,7 @@ Junto a sus respectivos DTO, CreateDTO y su Controller en el Backend.
                 modelo.Update = DateTime.Now;
 
                 await _reportRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente el reporte Id:{modelo.Id}.");
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
 
                 if (reportCreateDto.ListPhotos != null && reportCreateDto.ListPhotos.Count > 0)
                 {

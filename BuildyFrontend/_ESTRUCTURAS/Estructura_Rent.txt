@@ -206,7 +206,7 @@ public class Rent : IId
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<RentPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<RentPatchDTO> dto)
         {
             return await Patch<Rent, RentPatchDTO>(id, patchDto);
         }
@@ -223,8 +223,8 @@ public class Rent : IId
             {
                 if (!ModelState.IsValid)
                 {
-                                        _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                                        _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -272,7 +272,7 @@ public class Rent : IId
 
                     await transaction.CommitAsync();
 
-                    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                    _logger.LogInformation(_message.Created(model.Id, model.Name));
                     _response.Result = _mapper.Map<RentDTO>(modelo);
                     _response.StatusCode = HttpStatusCode.Created;
                     return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);

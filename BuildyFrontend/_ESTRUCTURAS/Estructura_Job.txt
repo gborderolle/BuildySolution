@@ -196,7 +196,7 @@ public class Job : IId
                 }
 
                 await _jobRepository.Remove(job);
-                _logger.LogInformation($"Se eliminó correctamente la obra Id:{id}.");
+_logger.LogInformation(_message.Updated(model.Id, model.Name));
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
             }
@@ -218,8 +218,8 @@ public class Job : IId
             {
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -274,7 +274,7 @@ public class Job : IId
 
                 var updatedJob = await _jobRepository.Update(job);
 
-                _logger.LogInformation($"Se actualizó correctamente La obra Id:{id}.");
+_logger.LogInformation(_message.Updated(model.Id, model.Name));
                 _response.Result = _mapper.Map<EstateDTO>(updatedJob);
                 _response.StatusCode = HttpStatusCode.OK;
 
@@ -378,7 +378,7 @@ public class Job : IId
 
                     await transaction.CommitAsync();
 
-                    _logger.LogInformation($"Se creó correctamente la obra Id:{modelo.Id}.");
+                    _logger.LogInformation(_message.Created(model.Id, model.Name));
                     _response.Result = _mapper.Map<JobDTO>(modelo);
                     _response.StatusCode = HttpStatusCode.Created;
 

@@ -1,4 +1,5 @@
 ﻿using BuildyBackend.Core.ApiBehavior;
+using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.Domain.IdentityEntities;
 using BuildyBackend.Core.Domain.RepositoryContracts;
 using BuildyBackend.Core.Enums;
@@ -6,6 +7,7 @@ using BuildyBackend.Core.Filters;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.EmailService;
 using BuildyBackend.Infrastructure.DbContext;
+using BuildyBackend.Infrastructure.MessagesService;
 using BuildyBackend.Infrastructure.Repositories;
 using BuildyBackend.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,7 +17,6 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -100,6 +101,20 @@ public static class ConfigureServicesExtensions
 
         services.AddScoped<ICountryResolver, CountryResolver>();
         services.AddScoped<CountryResolverService>();
+
+        // Mensajes
+        services.AddScoped<IMessage<City>, CityMessage>();
+        services.AddScoped<IMessage<Country>, CountryMessage>();
+        services.AddScoped<IMessage<Estate>, EstateMessage>();
+        services.AddScoped<IMessage<Job>, JobMessage>();
+        services.AddScoped<IMessage<Owner>, OwnerMessage>();
+        services.AddScoped<IMessage<Province>, ProvinceMessage>();
+        services.AddScoped<IMessage<Rent>, RentMessage>();
+        services.AddScoped<IMessage<Report>, ReportMessage>();
+        services.AddScoped<IMessage<Tenant>, TenantMessage>();
+        services.AddScoped<IMessage<Worker>, WorkerMessage>();
+        services.AddScoped<IMessage<BuildyUser>, BuildyUserMessage>();
+        services.AddScoped<IMessage<BuildyRole>, BuildyRoleMessage>();
 
         // Filtros
         //Ejemplo: services.AddScoped<MovieExistsAttribute>();

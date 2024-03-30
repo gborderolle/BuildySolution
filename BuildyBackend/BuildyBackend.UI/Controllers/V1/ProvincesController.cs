@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Core.Helpers;
 using BuildyBackend.Infrastructure.DbContext;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -16,17 +17,19 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/provinces")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProvincesController : CustomBaseController<Province> // Notice <ProvinceDS> here
+    public class ProvincesController : CustomBaseController<Province>
     {
-        private readonly IProvinceRepository _provinceRepository; // Servicio que contiene la lógica principal de negocio para Provinces.
+        private readonly IProvinceRepository _provinceRepository;
         private readonly ContextDB _dbContext;
+        private readonly IMessage<Province> _message;
 
-        public ProvincesController(ILogger<ProvincesController> logger, IMapper mapper, IProvinceRepository workerRepository, ContextDB dbContext)
+        public ProvincesController(ILogger<ProvincesController> logger, IMapper mapper, IProvinceRepository workerRepository, ContextDB dbContext, IMessage<Province> message)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
             _provinceRepository = workerRepository;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -69,17 +72,17 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] ProvinceDSCreateDTO workerCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] ProvinceDSCreateDTO dto)
         {
-            workerCreateDTO.Name = Utils.ToCamelCase(workerCreateDTO.Name);
-            return await Put<ProvinceDSCreateDTO, ProvinceDTO, Province>(id, workerCreateDTO);
+            dto.Name = Utils.ToCamelCase(dto.Name);
+            return await Put<ProvinceDSCreateDTO, ProvinceDTO, Province>(id, dto);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ProvinceDSPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ProvinceDSPatchDTO> dto)
         {
-            return await Patch<Province, ProvinceDSPatchDTO>(id, patchDto);
+            return await Patch<Province, ProvinceDSPatchDTO>(id, dto);
         }
 
         #endregion
@@ -88,54 +91,54 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateProvince")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO provinceCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _provinceRepository.Get(v => v.Name.ToLower() == provinceCreateDto.Name.ToLower()) != null)
+                if (await _provinceRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, provinceCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                var country = await _dbContext.Country.FindAsync(provinceCreateDto.CountryId);
+                var country = await _dbContext.Country.FindAsync(dto.CountryId);
                 if (country == null)
                 {
-                    _logger.LogError($"El país ID={provinceCreateDto.CountryId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"El país ID={provinceCreateDto.CountryId} no existe en el sistema." };
+                    _logger.LogError($"El país ID={dto.CountryId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"El país ID={dto.CountryId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"El país ID={provinceCreateDto.CountryId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"El país ID={dto.CountryId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
-                provinceCreateDto.Name = Utils.ToCamelCase(provinceCreateDto.Name);
-                Province modelo = _mapper.Map<Province>(provinceCreateDto);
-                modelo.Country = country; // Asigna el objeto Country resuelto
-                modelo.Creation = DateTime.Now;
-                modelo.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                Province model = _mapper.Map<Province>(dto);
+                model.Country = country; // Asigna el objeto Country resuelto
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _provinceRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                await _provinceRepository.Create(model);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
 
-                _response.Result = _mapper.Map<ProvinceDTO>(modelo);
+                _response.Result = _mapper.Map<ProvinceDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetProvinceById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

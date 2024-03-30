@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using BuildyBackend.Infrastructure.Services;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -17,15 +18,16 @@ namespace BuildyBackend.UI.Controllers.V1
     [HasHeader("x-version", "1")]
     [Route("api/reports")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ReportsController : CustomBaseController<Report> // Notice <Report> here
+    public class ReportsController : CustomBaseController<Report>
     {
         private readonly IReportRepository _reportRepository;
         private readonly IPhotoRepository _photoRepository;
         private readonly ILogService _logService;
         private readonly ContextDB _dbContext;
         private readonly IFileStorage _fileStorage;
+        private readonly IMessage<Report> _message;
 
-        public ReportsController(ILogger<ReportsController> logger, IMapper mapper, IReportRepository reportRepository, IPhotoRepository photoRepository, IFileStorage fileStorage, ILogService logService, ContextDB dbContext)
+        public ReportsController(ILogger<ReportsController> logger, IMapper mapper, IReportRepository reportRepository, IPhotoRepository photoRepository, IFileStorage fileStorage, ILogService logService, ContextDB dbContext, IMessage<Report> message)
         : base(mapper, logger, reportRepository)
         {
             _response = new();
@@ -34,6 +36,7 @@ namespace BuildyBackend.UI.Controllers.V1
             _fileStorage = fileStorage;
             _logService = logService;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -88,7 +91,7 @@ namespace BuildyBackend.UI.Controllers.V1
         {
             try
             {
-                var report = await _reportRepository.Get(x => x.Id == id, tracked: true, includes: new List<IncludePropertyConfiguration<Report>>
+                var model = await _reportRepository.Get(x => x.Id == id, tracked: true, includes: new List<IncludePropertyConfiguration<Report>>
         {
             new IncludePropertyConfiguration<Report>
             {
@@ -96,7 +99,7 @@ namespace BuildyBackend.UI.Controllers.V1
             }
         });
 
-                if (report == null)
+                if (model == null)
                 {
                     _logger.LogError($"Reporte no encontrada ID = {id}.");
                     _response.ErrorMessages = new() { $"Reporte no encontrada ID = {id}." };
@@ -106,10 +109,10 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 // Eliminar las fotos asociadas
-                if (report.ListPhotos != null)
+                if (model.ListPhotos != null)
                 {
-                    var container = $"uploads/reports/estate{report.EstateId}/{report.Creation.ToString("yyyy_MM")}/report{report.Id}";
-                    foreach (var photo in report.ListPhotos)
+                    var container = $"uploads/reports/estate{model.EstateId}/{model.Creation.ToString("yyyy_MM")}/report{model.Id}";
+                    foreach (var photo in model.ListPhotos)
                     {
                         await _fileStorage.DeleteFile(photo.URL, container);
                         _dbContext.Photo.Remove(photo);
@@ -118,10 +121,10 @@ namespace BuildyBackend.UI.Controllers.V1
                     // Eliminar la carpeta del contenedor
                     await _fileStorage.DeleteFolder(container);
                 }
-                await _reportRepository.Remove(report);
+                await _reportRepository.Remove(model);
 
-                _logger.LogInformation($"Se eliminó correctamente el reporte Id:{id}.");
-                await _logService.LogAction("Report", "Delete", $"Id:{report.Id}, Nombre: {report.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Report", "Delete", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
@@ -138,22 +141,22 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Consumes("multipart/form-data")] // Asegura que el método acepte multipart/form-data
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromForm] ReportCreateDTO reportCreateDto)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromForm] ReportCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -171,8 +174,8 @@ namespace BuildyBackend.UI.Controllers.V1
                             IncludeExpression = b => b.ListPhotos
                         },
                 };
-                var report = await _reportRepository.Get(v => v.Id == id, includes: includes);
-                if (report == null)
+                var model = await _reportRepository.Get(v => v.Id == id, includes: includes);
+                if (model == null)
                 {
                     _logger.LogError($"Trabajo no encontrado ID = {id}.");
                     _response.ErrorMessages = new() { $"Trabajo no encontrado ID = {id}" };
@@ -180,34 +183,34 @@ namespace BuildyBackend.UI.Controllers.V1
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return NotFound(_response);
                 }
-                var estate = await _dbContext.Estate.FindAsync(reportCreateDto.EstateId);
+                var estate = await _dbContext.Estate.FindAsync(dto.EstateId);
                 if (estate == null)
                 {
-                    _logger.LogError($"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema." };
+                    _logger.LogError($"La propiedad ID={dto.EstateId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"La propiedad ID={dto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={dto.EstateId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
-                report.Name = Utils.ToCamelCase(reportCreateDto.Name);
-                report.Comments = Utils.ToCamelCase(reportCreateDto.Comments);
-                report.Month = reportCreateDto.Month;
-                report.Comments = reportCreateDto.Comments;
-                report.EstateId = reportCreateDto.EstateId;
-                report.Estate = await _dbContext.Estate.FindAsync(reportCreateDto.EstateId);
-                report.Update = DateTime.Now;
+                model.Name = Utils.ToCamelCase(dto.Name);
+                model.Comments = Utils.ToCamelCase(dto.Comments);
+                model.Month = dto.Month;
+                model.Comments = dto.Comments;
+                model.EstateId = dto.EstateId;
+                model.Estate = await _dbContext.Estate.FindAsync(dto.EstateId);
+                model.Update = DateTime.Now;
 
-                var updatedReporter = await _reportRepository.Update(report);
+                var updatedReporter = await _reportRepository.Update(model);
 
-                if (reportCreateDto.ListPhotos != null && reportCreateDto.ListPhotos.Count > 0)
+                if (dto.ListPhotos != null && dto.ListPhotos.Count > 0)
                 {
-                    string dynamicContainer = $"uploads/reports/estate{estate.Id}/{DateTime.Now:yyyy_MM}/report{report.Id}";
-                    foreach (var photoForm in reportCreateDto.ListPhotos)
+                    string dynamicContainer = $"uploads/reports/estate{estate.Id}/{DateTime.Now:yyyy_MM}/report{model.Id}";
+                    foreach (var photoForm in dto.ListPhotos)
                     {
                         Photo newPhoto = new();
-                        newPhoto.Report = report;
+                        newPhoto.Report = model;
 
                         using (var stream = new MemoryStream())
                         {
@@ -220,8 +223,8 @@ namespace BuildyBackend.UI.Controllers.V1
                     }
                 }
 
-                _logger.LogInformation($"Se actualizó correctamente el reporte Id:{id}.");
-                await _logService.LogAction("Report", "Update", $"Id:{report.Id}, Nombre: {report.Name}.", User.Identity.Name);
+                _logger.LogInformation(_message.Updated(model.Id, model.Name));
+                await _logService.LogAction("Report", "Update", $"Id:{model.Id}, Nombre: {model.Name}.", User.Identity.Name);
 
                 _response.Result = _mapper.Map<ReportDTO>(updatedReporter);
                 _response.StatusCode = HttpStatusCode.OK;
@@ -239,9 +242,9 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ReportPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ReportPatchDTO> dto)
         {
-            return await Patch<Report, ReportPatchDTO>(id, patchDto);
+            return await Patch<Report, ReportPatchDTO>(id, dto);
         }
 
         #endregion
@@ -249,47 +252,47 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints específicos
 
         [HttpPost(Name = "CreateReport")]
-        public async Task<ActionResult<APIResponse>> Post([FromForm] ReportCreateDTO reportCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromForm] ReportCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var estate = await _dbContext.Estate.FindAsync(reportCreateDto.EstateId);
+                var estate = await _dbContext.Estate.FindAsync(dto.EstateId);
                 if (estate == null)
                 {
-                    _logger.LogError($"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema");
-                    _response.ErrorMessages = new() { $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema." };
+                    _logger.LogError($"La propiedad ID={dto.EstateId} no existe en el sistema");
+                    _response.ErrorMessages = new() { $"La propiedad ID={dto.EstateId} no existe en el sistema." };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={reportCreateDto.EstateId} no existe en el sistema.");
+                    ModelState.AddModelError("NameAlreadyExists", $"La propiedad ID={dto.EstateId} no existe en el sistema.");
                     return BadRequest(ModelState);
                 }
 
-                reportCreateDto.Name = Utils.ToCamelCase(reportCreateDto.Name);
-                reportCreateDto.Comments = Utils.ToCamelCase(reportCreateDto.Comments);
-                Report report = _mapper.Map<Report>(reportCreateDto);
-                report.Estate = estate;
-                report.Creation = DateTime.Now;
-                report.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                dto.Comments = Utils.ToCamelCase(dto.Comments);
+                Report model = _mapper.Map<Report>(dto);
+                model.Estate = estate;
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _reportRepository.Create(report);
-                _logger.LogInformation($"Se creó correctamente el reporte Id:{report.Id}.");
-                await _logService.LogAction("Report", "Create", $"Id:{report.Id}, Nombre: {report.Name}.", User.Identity.Name);
+                await _reportRepository.Create(model);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
+                await _logService.LogAction("Report", "Create", _message.ActionLog(model.Id, model.Name), User.Identity.Name);
 
-                if (reportCreateDto.ListPhotos != null && reportCreateDto.ListPhotos.Count > 0)
+                if (dto.ListPhotos != null && dto.ListPhotos.Count > 0)
                 {
-                    string dynamicContainer = $"uploads/reports/estate{estate.Id}/{DateTime.Now:yyyy_MM}/report{report.Id}";
-                    foreach (var photoForm in reportCreateDto.ListPhotos)
+                    string dynamicContainer = $"uploads/reports/estate{estate.Id}/{DateTime.Now:yyyy_MM}/report{model.Id}";
+                    foreach (var photoForm in dto.ListPhotos)
                     {
                         Photo newPhoto = new();
-                        newPhoto.Report = report;
+                        newPhoto.Report = model;
 
                         using (var stream = new MemoryStream())
                         {
@@ -302,12 +305,12 @@ namespace BuildyBackend.UI.Controllers.V1
                     }
                 }
 
-                _response.Result = _mapper.Map<ReportDTO>(report);
+                _response.Result = _mapper.Map<ReportDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetEstateById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = report.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

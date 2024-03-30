@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -19,14 +20,16 @@ namespace BuildyBackend.UI.Controllers.V1
     public class CitiesController : CustomBaseController<City>
     {
         private readonly ICityRepository _cityRepository;
+        private readonly IMessage<City> _message;
         private readonly ContextDB _dbContext;
 
-        public CitiesController(ILogger<CitiesController> logger, IMapper mapper, ICityRepository workerRepository, ContextDB dbContext)
+        public CitiesController(ILogger<CitiesController> logger, IMapper mapper, ICityRepository workerRepository, ContextDB dbContext, IMessage<City> message)
         : base(mapper, logger, workerRepository)
         {
             _response = new();
             _cityRepository = workerRepository;
             _dbContext = dbContext;
+            _message = message;
         }
 
         #region Endpoints genéricos
@@ -77,17 +80,17 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CityCreateDTO workerCreateDTO)
+        public async Task<ActionResult<APIResponse>> Put(int id, [FromBody] CityCreateDTO dto)
         {
-            workerCreateDTO.Name = Utils.ToCamelCase(workerCreateDTO.Name);
-            return await Put<CityCreateDTO, CityDTO, City>(id, workerCreateDTO);
+            dto.Name = Utils.ToCamelCase(dto.Name);
+            return await Put<CityCreateDTO, CityDTO, City>(id, dto);
         }
 
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CityPatchDTO> patchDto)
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<CityPatchDTO> dto)
         {
-            return await Patch<City, CityPatchDTO>(id, patchDto);
+            return await Patch<City, CityPatchDTO>(id, dto);
         }
 
         #endregion
@@ -96,54 +99,54 @@ namespace BuildyBackend.UI.Controllers.V1
 
         [HttpPost(Name = "CreateCity")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityCreateDto)
+        public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO dto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    _logger.LogError(_message.NotValid());
+                    _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                if (await _cityRepository.Get(v => v.Name.ToLower() == cityCreateDto.Name.ToLower()) != null)
+                if (await _cityRepository.Get(v => v.Name.ToLower() == dto.Name.ToLower()) != null)
                 {
-                    _logger.LogError(string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name));
-                    _response.ErrorMessages = new() { string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name) };
+                    _logger.LogError(_message.NameAlreadyExists(dto.Name));
+                    _response.ErrorMessages = new() { _message.NameAlreadyExists(dto.Name) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Generic.NameAlreadyExists, cityCreateDto.Name));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NameAlreadyExists(dto.Name));
                     return BadRequest(ModelState);
                 }
 
-                var province = await _dbContext.Province.FindAsync(cityCreateDto.ProvinceId);
+                var province = await _dbContext.Province.FindAsync(dto.ProvinceId);
                 if (province == null)
                 {
-                    _logger.LogError(string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId));
-                    _response.ErrorMessages = new() { string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId) };
+                    _logger.LogError(_message.NotFound(dto.ProvinceId));
+                    _response.ErrorMessages = new() { _message.NotFound(dto.ProvinceId) };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    ModelState.AddModelError("NameAlreadyExists", string.Format(Messages.Province.NotFound, cityCreateDto.ProvinceId));
+                    ModelState.AddModelError("NameAlreadyExists", _message.NotFound(dto.ProvinceId));
                     return BadRequest(ModelState);
                 }
 
-                cityCreateDto.Name = Utils.ToCamelCase(cityCreateDto.Name);
-                City modelo = _mapper.Map<City>(cityCreateDto);
-                modelo.Province = province; // Asigna el objeto Country resuelto
-                modelo.Creation = DateTime.Now;
-                modelo.Update = DateTime.Now;
+                dto.Name = Utils.ToCamelCase(dto.Name);
+                City model = _mapper.Map<City>(dto);
+                model.Province = province; // Asigna el objeto Country resuelto
+                model.Creation = DateTime.Now;
+                model.Update = DateTime.Now;
 
-                await _cityRepository.Create(modelo);
-                _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+                await _cityRepository.Create(model);
+                _logger.LogInformation(_message.Created(model.Id, model.Name));
 
-                _response.Result = _mapper.Map<CityDTO>(modelo);
+                _response.Result = _mapper.Map<CityDTO>(model);
                 _response.StatusCode = HttpStatusCode.Created;
 
                 // CreatedAtRoute -> Nombre de la ruta (del método): GetCityById
                 // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/13816172#notes
-                return CreatedAtAction(nameof(Get), new { id = modelo.Id }, _response);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, _response);
             }
             catch (Exception ex)
             {

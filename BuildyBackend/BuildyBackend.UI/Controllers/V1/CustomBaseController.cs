@@ -7,6 +7,7 @@ using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.DTO;
 using BuildyBackend.Core.Domain.RepositoryContracts;
 using BuildyBackend.Core.Helpers;
+using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -20,6 +21,7 @@ namespace BuildyBackend.UI.Controllers.V1
         protected readonly ILogger _logger;
         protected readonly IRepository<T> _repository;
         protected APIResponse _response;
+
 
         public CustomBaseController(IMapper mapper, ILogger logger, IRepository<T> repository)
         {
@@ -180,7 +182,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 await _repository.Remove(entity);
-                _logger.LogInformation($"Se eliminó correctamente la entidad Id:{id}.");
+                _logger.LogInformation("Entidad eliminada con éxito.");
                 _response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(_response);
             }
@@ -194,15 +196,15 @@ namespace BuildyBackend.UI.Controllers.V1
             return BadRequest(_response);
         }
 
-        protected async Task<ActionResult<APIResponse>> Put<TCreate, TDTO, TEntity>(int id, TCreate createDTO)
+        protected async Task<ActionResult<APIResponse>> Put<TCreate, TDTO, TEntity>(int id, TCreate dto)
             where TEntity : class, IId
         {
             try
             {
                 if (id <= 0)
                 {
-                    _logger.LogError($"Datos de entrada inválidos.");
-                    _response.ErrorMessages = new() { $"Datos de entrada inválidos." };
+                    // _logger.LogError(_message.NotValid());
+                    // _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
@@ -218,12 +220,12 @@ namespace BuildyBackend.UI.Controllers.V1
                     return NotFound(_response);
                 }
 
-                entity = _mapper.Map(createDTO, entity);
+                entity = _mapper.Map(dto, entity);
                 entity.Id = id;
 
                 var updatedEntity = await _repository.Update(entity);
 
-                _logger.LogInformation($"Se actualizó correctamente la entidad Id:{id}.");
+                _logger.LogInformation("Entidad actualizada con éxito.");
                 _response.Result = _mapper.Map<TDTO>(updatedEntity);
                 _response.StatusCode = HttpStatusCode.OK;
 
@@ -239,13 +241,13 @@ namespace BuildyBackend.UI.Controllers.V1
             return BadRequest(_response);
         }
 
-        protected async Task<ActionResult<APIResponse>> Patch<TEntity, TDTO>(int id, JsonPatchDocument<TDTO> patchDto)
+        protected async Task<ActionResult<APIResponse>> Patch<TEntity, TDTO>(int id, JsonPatchDocument<TDTO> dto)
             where TDTO : class
             where TEntity : class
         {
             try
             {
-                if (patchDto == null || id <= 0)
+                if (dto == null || id <= 0)
                 {
                     _logger.LogError($"El Id {id} es inválido.");
                     _response.ErrorMessages = new() { $"El Id {id} es inválido." };
@@ -264,11 +266,11 @@ namespace BuildyBackend.UI.Controllers.V1
                 }
 
                 TDTO patchDTO = _mapper.Map<TDTO>(entity);
-                patchDto.ApplyTo(patchDTO, ModelState);
+                dto.ApplyTo(patchDTO, ModelState);
                 if (!TryValidateModel(patchDTO))
                 {
-                    _logger.LogError(Messages.Generic.NotValid);
-                    _response.ErrorMessages = new() { Messages.Generic.NotValid };
+                    // _logger.LogError(_message.NotValid());
+                    // _response.ErrorMessages = new() { _message.NotValid() };
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);

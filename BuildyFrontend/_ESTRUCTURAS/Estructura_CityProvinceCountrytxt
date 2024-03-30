@@ -264,7 +264,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO cityC
     modelo.Update = DateTime.Now;
 
     await _cityRepository.Create(modelo);
-    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+    _logger.LogInformation(_message.Created(model.Id, model.Name));
 
     _response.Result = _mapper.Map<CityDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
@@ -324,7 +324,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] ProvinceDSCreateDTO
     modelo.Update = DateTime.Now;
 
     await _provinceRepository.Create(modelo);
-    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+    _logger.LogInformation(_message.Created(model.Id, model.Name));
 
     _response.Result = _mapper.Map<ProvinceDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
@@ -372,7 +372,7 @@ public async Task<ActionResult<APIResponse>> Post([FromBody] CountryCreateDTO co
     modelo.Update = DateTime.Now;
 
     await _countryRepository.Create(modelo);
-    _logger.LogInformation($"Se creó correctamente la propiedad Id:{modelo.Id}.");
+    _logger.LogInformation(_message.Created(model.Id, model.Name));
 
     _response.Result = _mapper.Map<CountryDTO>(modelo);
     _response.StatusCode = HttpStatusCode.Created;
