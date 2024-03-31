@@ -5,6 +5,11 @@
       "Microsoft.AspNetCore": "Warning"
     }
   },
+  "ConnectionStrings": {
+    "ConnectionString_Buildy": "Data Source=sql5111.site4now.net;Initial Catalog=db_a4d7d8_buildydb;User Id=db_a4d7d8_buildydb_admin;Password=buildydb1234;TrustServerCertificate=true;"
+  },
+  "JWT:key": "ASD5ASD321ASD5AS4D65ASD32AS1D32AS1D65AS4D6AS54D6AS84D321AS3D21ASD54AS68D",
+
   "Frontend_URL": "https://buildy1.web.app",
   "Backend_URL": "https://buildy.lat",
   "NotificationEmail": {
@@ -13,7 +18,8 @@
     "Subject": "API Buildy Service: Notificaciones",
     "SmtpServer": "smtp.gmail.com",
     "SmtpPort": 465,
-    "Username": "gborderolle2@gmail.com"
+    "Username": "gborderolle2@gmail.com",
+    "Password": "qgastomptgtqepvs"
   },
   "AllowedHosts": "*"
 }

@@ -24,3 +24,5 @@ BuildyBackend/BuildyBackend.ServiceTests/bin/
 
 DatalexionFrontend/.vs/
 DatalexionFrontend/node_modules/
+
+BuildyBackend/BuildyBackend.UI/appsettings.Development.json

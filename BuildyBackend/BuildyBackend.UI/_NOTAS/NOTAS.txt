@@ -130,3 +130,12 @@ URL final: http://gborderolle1-001-site1.atempurl.com/swagger/index.html
 
 // ---------------------------------------------------------- *****************
 
+Variables de entorno, registro en Windows:
+setx JWT_KEY "ASD5ASD321ASD5AS4D65ASD32AS1D32AS1D65AS4D6AS54D6AS84D321AS3D21ASD54AS68D"   
+setx EMAIL_PASSWORD "qgastomptgtqepvs"
+setx ConnectionStrings__ConnectionString_Buildy "Data Source=sql5111.site4now.net;Initial Catalog=db_a4d7d8_buildydb;User Id=db_a4d7d8_buildydb_admin;Password=YOUR_SECURE_PASSWORD;TrustServerCertificate=true;"
+
+Variables de entorno, registro en SmarterASP sin "".
+
+--
+
