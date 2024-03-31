@@ -41,8 +41,6 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly ContextDB _contextDB;
         private APIResponse _response;
         private readonly IWebHostEnvironment _environment;
-        // private readonly IMessage<BuildyUserMessage> _messageUser;
-        // private readonly IMessage<BuildyRoleMessage> _messageRole;
 
         private readonly IMessage<BuildyUser> _messageUser;
         private readonly IMessage<BuildyRole> _messageRole;
@@ -349,7 +347,7 @@ namespace BuildyBackend.UI.Controllers.V1
                 else
                 {
                     await _logService.LogAction(((BuildyUserMessage)_messageUser).ActionLog(0, dto.Username), "Login", "Inicio de sesión fallido.", dto.Username);
-                    _logger.LogError($"Inicio de sesión fallido.");
+                    _logger.LogError(((BuildyUserMessage)_messageUser).LoginFailed(dto.Username));
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest("Login incorrecto");  // respuesta genérica para no revelar información

@@ -1,3 +1,4 @@
+using BuildyBackend.Infrastructure.Services;
 using BuildyBackend.UI.Middlewares;
 using BuildyBackend.UI.StartupExtensions;
 using Serilog;
@@ -15,6 +16,18 @@ builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, 
 builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
+
+// Crear un ámbito manualmente
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    // Registrar el inicio de la aplicación
+    var loggerProgram = services.GetRequiredService<ILogger<Program>>();
+    var loggerService = services.GetRequiredService<ILogService>();
+    loggerProgram.LogInformation("La aplicación BuildyBackend ha iniciado.");
+    await loggerService.LogAction("Program", "Inicio", "System", "La aplicación BuildyBackend ha iniciado.");
+}
 
 var webHostEnvironment = app.Services.GetService<IWebHostEnvironment>();
 var wwwrootPath = webHostEnvironment?.WebRootPath ?? "";
