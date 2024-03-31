@@ -25,7 +25,7 @@ namespace BuildyBackend.UI.Controllers.V1
     [ApiController]
     [HasHeader("x-version", "1")]
     [Route("api/accounts")]
-    [Authorize(Roles = nameof(UserTypeOptions.Admin))]
+    // [Authorize(Roles = nameof(UserTypeOptions.Admin))]
     public class AccountsController : ControllerBase
     {
         private readonly IConfiguration _configuration;

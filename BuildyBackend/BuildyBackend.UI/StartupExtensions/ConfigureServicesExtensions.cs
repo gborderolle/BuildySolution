@@ -77,7 +77,8 @@ public static class ConfigureServicesExtensions
 
         services.AddAutoMapper(typeof(AutoMapperProfiles));
 
-        // Registro de servicios 
+        #region Registro de servicios
+
         // --------------
 
         // AddTransient: cambia dentro del contexto
@@ -131,6 +132,10 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddDetection();
 
+        #endregion
+
+        #region AddDbContext and AddIdentity
+
         services.AddDbContext<ContextDB>(options =>
         {
             // Obtener el ConnectionString desde una variable de entorno
@@ -163,7 +168,11 @@ public static class ConfigureServicesExtensions
             .AddUserStore<UserStore<BuildyUser, BuildyRole, ContextDB, string>>()
             .AddRoleStore<RoleStore<BuildyRole, ContextDB, string>>();
 
+        #endregion
+
         // --------------
+
+        #region AddAuthentication
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
@@ -179,6 +188,10 @@ public static class ConfigureServicesExtensions
             ClockSkew = TimeSpan.Zero
         });
 
+        #endregion
+
+        #region AddAuthorization
+
         // Autorización basada en Claims
         // Agregar los roles del sistema
         // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/27047710#notes
@@ -187,6 +200,10 @@ public static class ConfigureServicesExtensions
             // options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role", "admin"));
             options.AddPolicy("IsAdmin", policy => policy.RequireRole(UserTypeOptions.Admin.ToString()));
         });
+
+        #endregion
+
+        #region AddCors
 
         // Configuración CORS: para permitir recibir peticiones http desde un origen específico
         // CORS Sólo sirve para aplicaciones web (Angular, React, etc)
@@ -203,14 +220,11 @@ public static class ConfigureServicesExtensions
             });
         });
 
+        #endregion
+
         // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/27148834#notes
         services.AddTransient<GenerateLinks>();
         services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-
-        // services.ConfigureApplicationCookie(options =>
-        // {
-        //     options.LoginPath = "/Account/Login";
-        // });
 
         services.AddHttpLogging(logging =>
         {
