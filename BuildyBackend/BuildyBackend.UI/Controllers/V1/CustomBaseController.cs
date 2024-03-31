@@ -6,8 +6,6 @@ using System.Net;
 using BuildyBackend.Core.Domain.Entities;
 using BuildyBackend.Core.DTO;
 using BuildyBackend.Core.Domain.RepositoryContracts;
-using BuildyBackend.Core.Helpers;
-using BuildyBackend.Infrastructure.MessagesService;
 
 namespace BuildyBackend.UI.Controllers.V1
 {
@@ -21,7 +19,6 @@ namespace BuildyBackend.UI.Controllers.V1
         protected readonly ILogger _logger;
         protected readonly IRepository<T> _repository;
         protected APIResponse _response;
-
 
         public CustomBaseController(IMapper mapper, ILogger logger, IRepository<T> repository)
         {

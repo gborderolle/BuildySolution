@@ -41,10 +41,8 @@ namespace BuildyBackend.UI.Controllers.V1
         private readonly ContextDB _contextDB;
         private APIResponse _response;
         private readonly IWebHostEnvironment _environment;
-
         private readonly IMessage<BuildyUser> _messageUser;
         private readonly IMessage<BuildyRole> _messageRole;
-
 
         public AccountsController
         (
@@ -331,18 +329,28 @@ namespace BuildyBackend.UI.Controllers.V1
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(dto.Username);
-                    var roles = await _userManager.GetRolesAsync(user); // Obtener roles del usuario
-
-                    await _logService.LogAction(((BuildyUserMessage)_messageUser).ActionLog(0, user.UserName), "Login", "Inicio de sesión.", user.UserName);
-                    _logger.LogInformation(((BuildyUserMessage)_messageUser).LoginSuccess(user.Id, user.UserName));
-
-                    _response.StatusCode = HttpStatusCode.OK;
-                    _response.Result = new
+                    if (user != null)
                     {
-                        Token = await TokenSetup(dto),
-                        UserRoles = roles
-                    };
-                    await SendLoginNotification(dto);
+                        var roles = await _userManager.GetRolesAsync(user);
+
+                        await _logService.LogAction(((BuildyUserMessage)_messageUser).ActionLog(0, user.UserName), "Login", "Inicio de sesión.", user.UserName);
+                        _logger.LogInformation(((BuildyUserMessage)_messageUser).LoginSuccess(user.Id, user.UserName));
+
+                        _response.StatusCode = HttpStatusCode.OK;
+                        _response.Result = new
+                        {
+                            Token = await TokenSetup(dto),
+                            UserRoles = roles
+                        };
+                        await SendLoginNotification(dto);
+                    }
+                    else
+                    {
+                        _logger.LogError($"User not found.");
+                        _response.IsSuccess = false;
+                        _response.StatusCode = HttpStatusCode.BadRequest;
+                        return BadRequest("User not found");
+                    }
                 }
                 else
                 {
