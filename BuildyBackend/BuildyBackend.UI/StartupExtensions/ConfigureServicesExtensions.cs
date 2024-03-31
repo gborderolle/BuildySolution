@@ -98,11 +98,12 @@ public static class ConfigureServicesExtensions
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IOwnerRepository, OwnerRepository>();
         services.AddScoped<ILogService, LogService>();
-
         services.AddScoped<ICountryResolver, CountryResolver>();
         services.AddScoped<CountryResolverService>();
 
         // Mensajes
+        services.AddScoped<IMessage<BuildyUser>, BuildyUserMessage>();
+        services.AddScoped<IMessage<BuildyRole>, BuildyRoleMessage>();
         services.AddScoped<IMessage<City>, CityMessage>();
         services.AddScoped<IMessage<Country>, CountryMessage>();
         services.AddScoped<IMessage<Estate>, EstateMessage>();
@@ -113,8 +114,6 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IMessage<Report>, ReportMessage>();
         services.AddScoped<IMessage<Tenant>, TenantMessage>();
         services.AddScoped<IMessage<Worker>, WorkerMessage>();
-        services.AddScoped<IMessage<BuildyUser>, BuildyUserMessage>();
-        services.AddScoped<IMessage<BuildyRole>, BuildyRoleMessage>();
 
         // Filtros
         //Ejemplo: services.AddScoped<MovieExistsAttribute>();
