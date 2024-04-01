@@ -30,7 +30,8 @@ public static class ConfigureServicesExtensions
 {
     public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Configuración de Swagger
+        #region Swagger
+
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo
@@ -56,6 +57,8 @@ public static class ConfigureServicesExtensions
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             c.IncludeXmlComments(xmlPath);
         });
+
+        #endregion
 
         // Configuración de servicios
         services.AddControllers(options =>

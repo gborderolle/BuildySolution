@@ -5,13 +5,28 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Logging - Serilog
+#region Logging - Serilog
+
 builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, LoggerConfiguration loggerConfiguration) =>
 {
+    var connectionString = Environment.GetEnvironmentVariable("CONNECTIONSTRING_BUILDY") ?? "Server=localhost;Database=buildydb;User Id=buildydb_admin;Password=buildydb_admin1234;Encrypt=False;TrustServerCertificate=True"; // Usa una conexión de respaldo si no se encuentra la variable de entorno
+
     loggerConfiguration
-    .ReadFrom.Configuration(context.Configuration) // Leer la configuración
-    .ReadFrom.Services(services); // Hacer disponibles los servicios de la app
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Hour, fileSizeLimitBytes: 1048576, rollOnFileSizeLimit: true)
+        .WriteTo.MSSqlServer(
+            connectionString: connectionString,
+            sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+            {
+                TableName = "Serilog",
+                AutoCreateSqlTable = true
+            });
 });
+
+#endregion
 
 builder.Services.ConfigureServices(builder.Configuration);
 
