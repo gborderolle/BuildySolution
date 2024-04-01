@@ -86,25 +86,20 @@ public static class ConfigureServicesExtensions
         // AddSingleton: no cambia nunca
 
         // Repositorios
+        services.AddScoped<ICityRepository, CityRepository>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IEstateRepository, EstateRepository>();
-        services.AddScoped<IJobRepository, JobRepository>();
-        services.AddScoped<IPhotoRepository, PhotoRepository>();
         services.AddScoped<IFileRepository, FileRepository>();
+        services.AddScoped<IJobRepository, JobRepository>();
+        services.AddScoped<IOwnerRepository, OwnerRepository>();
+        services.AddScoped<IPhotoRepository, PhotoRepository>();
+        services.AddScoped<IProvinceRepository, ProvinceDSRepository>();
         services.AddScoped<IRentRepository, RentRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IWorkerRepository, WorkerRepository>();
-        services.AddScoped<ICountryRepository, CountryRepository>();
-        services.AddScoped<IProvinceRepository, ProvinceDSRepository>();
-        services.AddScoped<ICityRepository, CityRepository>();
-        services.AddScoped<IOwnerRepository, OwnerRepository>();
-        services.AddScoped<ILogService, LogService>();
-        services.AddScoped<ICountryResolver, CountryResolver>();
-        services.AddScoped<CountryResolverService>();
 
         // Mensajes
-        services.AddScoped<IMessage<BuildyUser>, BuildyUserMessage>();
-        services.AddScoped<IMessage<BuildyRole>, BuildyRoleMessage>();
         services.AddScoped<IMessage<City>, CityMessage>();
         services.AddScoped<IMessage<Country>, CountryMessage>();
         services.AddScoped<IMessage<Estate>, EstateMessage>();
@@ -115,6 +110,17 @@ public static class ConfigureServicesExtensions
         services.AddScoped<IMessage<Report>, ReportMessage>();
         services.AddScoped<IMessage<Tenant>, TenantMessage>();
         services.AddScoped<IMessage<Worker>, WorkerMessage>();
+        services.AddScoped<IMessage<BuildyUser>, BuildyUserMessage>();
+        services.AddScoped<IMessage<BuildyRole>, BuildyRoleMessage>();
+
+        // Otros servicios
+        services.AddScoped<ILogService, LogService>();
+        services.AddScoped<ICountryResolver, CountryResolver>();
+        services.AddScoped<CountryResolverService>();
+
+        // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/27148834#notes
+        services.AddTransient<GenerateLinks>();
+        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
         // Filtros
         //Ejemplo: services.AddScoped<MovieExistsAttribute>();
@@ -126,7 +132,10 @@ public static class ConfigureServicesExtensions
         services.AddSingleton<IFileStorage, FileStorageLocal>();
         services.AddHttpContextAccessor();
 
-        // Email Configuration
+        #endregion
+
+        #region Email Configuration
+
         var emailConfig = configuration.GetSection("NotificationEmail").Get<EmailConfiguration>();
         services.AddSingleton(emailConfig);
         services.AddScoped<IEmailSender, EmailSender>();
@@ -174,6 +183,21 @@ public static class ConfigureServicesExtensions
 
         #region AddAuthentication
 
+        // Intentar obtener la clave JWT desde una variable de entorno
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+
+        // Si la variable de entorno no está establecida, intenta obtenerla desde appsettings.json
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            jwtKey = configuration["JWT:key"];
+        }
+
+        // Asegúrate de que la clave no sea nula o vacía
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException("No se encontró la clave JWT. Asegúrese de configurar la variable de entorno 'JWT_KEY' o definirla en appsettings.");
+        }
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -184,10 +208,9 @@ public static class ConfigureServicesExtensions
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration["JWT:key"])),
+                Encoding.UTF8.GetBytes(jwtKey)),
             ClockSkew = TimeSpan.Zero
         });
-
         #endregion
 
         #region AddAuthorization
@@ -197,7 +220,6 @@ public static class ConfigureServicesExtensions
         // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/27047710#notes
         services.AddAuthorization(options =>
         {
-            // options.AddPolicy("IsAdmin", policy => policy.RequireClaim("role", "admin"));
             options.AddPolicy("IsAdmin", policy => policy.RequireRole(UserTypeOptions.Admin.ToString()));
         });
 
@@ -221,10 +243,6 @@ public static class ConfigureServicesExtensions
         });
 
         #endregion
-
-        // Clase: https://www.udemy.com/course/construyendo-web-apis-restful-con-aspnet-core/learn/lecture/27148834#notes
-        services.AddTransient<GenerateLinks>();
-        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
         services.AddHttpLogging(logging =>
         {
