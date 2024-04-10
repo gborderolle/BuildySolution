@@ -26,3 +26,5 @@ DatalexionFrontend/.vs/
 DatalexionFrontend/node_modules/
 
 BuildyBackend/BuildyBackend.UI/appsettings.Development.json
+
+BuildyBackend/BuildyBackend.UI/logs/
