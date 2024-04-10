@@ -1,0 +1,15 @@
+2024-04-09 22:46:01.928 -03:00 [INF] La aplicación BuildyBackend ha iniciado.
+2024-04-09 22:46:04.038 -03:00 [WRN] Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.
+2024-04-09 22:46:04.174 -03:00 [WRN] No store type was specified for the decimal property 'LabourCost' on entity type 'Job'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-04-09 22:46:04.177 -03:00 [WRN] No store type was specified for the decimal property 'MonthlyValue' on entity type 'Rent'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-04-09 22:46:04.581 -03:00 [INF] Executed DbCommand (54ms) [Parameters=[@p0='Inicio' (Nullable = false) (Size = 4000), @p1='2024-04-09T22:46:02.7265579', @p2='La aplicación BuildyBackend ha iniciado.' (Nullable = false) (Size = 4000), @p3='Program' (Nullable = false) (Size = 4000), @p4='System' (Nullable = false) (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Log] ([Action], [Creation], [Data], [Entity], [Username])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4);
+2024-04-09 22:46:05.386 -03:00 [INF] User profile is available. Using 'C:\Users\Gonzalo\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2024-04-09 22:46:05.903 -03:00 [INF] Now listening on: https://localhost:7015
+2024-04-09 22:46:05.905 -03:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-04-09 22:46:05.910 -03:00 [INF] Hosting environment: Development
+2024-04-09 22:46:05.911 -03:00 [INF] Content root path: D:\Documents\GitHub\BuildySolution\BuildyBackend\BuildyBackend.UI

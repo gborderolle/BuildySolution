@@ -10,6 +10,7 @@ namespace BuildyBackend.Infrastructure.DbContext
 {
     public class ContextDB : IdentityDbContext
     {
+        private readonly string _baseUrl;
         public ContextDB(DbContextOptions<ContextDB> options) : base(options)
         {
         }
