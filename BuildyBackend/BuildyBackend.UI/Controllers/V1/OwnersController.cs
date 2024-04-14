@@ -79,7 +79,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateOwner")]
+        [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Post([FromBody] OwnerCreateDTO dto)
         {

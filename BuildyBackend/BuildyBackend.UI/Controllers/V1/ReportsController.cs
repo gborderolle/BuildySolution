@@ -86,7 +86,7 @@ namespace BuildyBackend.UI.Controllers.V1
             return await Get<Report, ReportDTO>(includes: includes);
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteReport")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
             try
@@ -242,16 +242,18 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<ReportPatchDTO> dto)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromForm] ReportCreateDTO dto)
         {
-            return await Patch<Report, ReportPatchDTO>(id, dto);
+            throw new NotImplementedException();
         }
 
         #endregion
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateReport")]
+        [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<APIResponse>> Post([FromForm] ReportCreateDTO dto)
         {
             try

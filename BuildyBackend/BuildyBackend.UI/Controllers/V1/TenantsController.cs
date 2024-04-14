@@ -73,7 +73,7 @@ namespace BuildyBackend.UI.Controllers.V1
             return await Get<Tenant, TenantDTO>(includes: includes);
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteTenant")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
             try
@@ -187,7 +187,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateTenant")]
+        [HttpPost]
         public async Task<ActionResult<APIResponse>> Post([FromBody] TenantCreateDTO dto)
         {
             try

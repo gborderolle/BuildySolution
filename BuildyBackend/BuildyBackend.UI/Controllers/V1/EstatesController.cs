@@ -151,7 +151,7 @@ namespace BuildyBackend.UI.Controllers.V1
             return await Get<Estate, EstateDTO>(includes: includes, thenIncludes: thenIncludes);
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteEstate")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
@@ -350,7 +350,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateEstate")]
+        [HttpPost]
         public async Task<ActionResult<APIResponse>> Post([FromBody] EstateCreateDTO dto)
         {
             try

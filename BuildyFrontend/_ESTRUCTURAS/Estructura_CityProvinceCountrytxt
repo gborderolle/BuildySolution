@@ -13,7 +13,7 @@ public class City : IId
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 
@@ -36,7 +36,7 @@ public class CityDTO
   #region Internal
 
   public int Id { get; set; }
-  public string Name { get; set; }
+  public required string Name { get; set; }
   public DateTime Creation { get; set; } = DateTime.Now; public DateTime Update { get; set; } = DateTime.Now;
   public string NominatimCityCode { get; set; }
 
@@ -60,7 +60,7 @@ public class CityCreateDTO
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 
@@ -87,7 +87,7 @@ public class ProvinceDS : IId
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 
@@ -110,7 +110,7 @@ public class ProvinceDTO
   #region Internal
 
   public int Id { get; set; }
-  public string Name { get; set; }
+  public required string Name { get; set; }
   public DateTime Creation { get; set; } = DateTime.Now;
   public DateTime Update { get; set; } = DateTime.Now;
   public string NominatimProvinceCode { get; set; }
@@ -136,7 +136,7 @@ public class ProvinceDSCreateDTO
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 
@@ -164,7 +164,7 @@ public class Country : IId
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 
@@ -183,7 +183,7 @@ public class CountryDTO
   #region Internal
 
   public int Id { get; set; }
-  public string Name { get; set; }
+  public required string Name { get; set; }
   public DateTime Creation { get; set; } = DateTime.Now;
   public DateTime Update { get; set; } = DateTime.Now;
   public string NominatimCountryCode { get; set; }
@@ -207,7 +207,7 @@ public class CountryCreateDTO
   [Required(ErrorMessage = "El campo {0} es requerido")]
   [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
   [FirstCharCapitalValidation]
-  public string Name { get; set; }
+  public required string Name { get; set; }
 
   public DateTime Creation { get; set; } = DateTime.Now;
 

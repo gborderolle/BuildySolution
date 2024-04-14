@@ -97,7 +97,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateCity")]
+        [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
         public async Task<ActionResult<APIResponse>> Post([FromBody] CityCreateDTO dto)
         {
@@ -166,4 +166,3 @@ namespace BuildyBackend.UI.Controllers.V1
 
     }
 }
-

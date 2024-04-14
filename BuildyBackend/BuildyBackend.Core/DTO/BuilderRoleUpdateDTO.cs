@@ -1,5 +1,5 @@
 namespace BuildyBackend.Core.DTO;
 public class BuilderRoleUpdateDTO
 {
-    public string Name { get; set; }
+    public required string Name { get; set; }
 }

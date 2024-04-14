@@ -11,7 +11,7 @@ namespace BuildyBackend.Core.DTO
 
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         public DateTime Creation { get; set; } = DateTime.Now;
 

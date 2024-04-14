@@ -90,7 +90,7 @@ namespace BuildyBackend.UI.Controllers.V1
             return await Get<Job, JobDTO>(includes: includes);
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteJob")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
             try
@@ -264,7 +264,8 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult<APIResponse>> Patch(int id, [FromBody] JsonPatchDocument<JobDTO> dto)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<APIResponse>> Patch(int id, [FromForm] JsonPatchDocument<JobDTO> dto)
         {
             return await Patch<Job, JobDTO>(id, dto);
         }
@@ -273,7 +274,8 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateJob")]
+        [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<ActionResult<APIResponse>> Post([FromForm] JobCreateDTO dto)
         {
             try

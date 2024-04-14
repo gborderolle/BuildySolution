@@ -76,7 +76,7 @@ namespace BuildyBackend.UI.Controllers.V1
             return await Get<Worker, WorkerDTO>(includes: includes);
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteWorker")]
+        [HttpDelete("{id:int}")]
         public async Task<ActionResult<APIResponse>> Delete([FromRoute] int id)
         {
             try
@@ -189,7 +189,7 @@ namespace BuildyBackend.UI.Controllers.V1
 
         #region Endpoints específicos
 
-        [HttpPost(Name = "CreateWorker")]
+        [HttpPost]
         public async Task<ActionResult<APIResponse>> Post([FromBody] WorkerCreateDTO dto)
         {
             try

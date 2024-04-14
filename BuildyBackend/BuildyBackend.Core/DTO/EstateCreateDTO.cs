@@ -13,11 +13,11 @@ namespace BuildyBackend.Core.DTO
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [StringLength(maximumLength: 100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string Address { get; set; }
-        public string LatLong { get; set; }
+        public required string Address { get; set; }
+        public required string LatLong { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int CityId { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]

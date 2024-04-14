@@ -4,7 +4,7 @@ namespace BuildyBackend.Core.Domain.IdentityEntities
 {
     public class BuildyUser : IdentityUser
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         public DateTime Creation { get; set; } = DateTime.Now;
 
