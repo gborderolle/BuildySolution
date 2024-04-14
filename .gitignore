@@ -12,6 +12,7 @@ BuildyBackend/BuildyBackend.Infrastructure/bin/
 
 BuildyBackend/BuildyBackend.UI/obj/
 BuildyBackend/BuildyBackend.UI/bin/
+BuildyBackend/BuildyBackend.UI/logs/
 
 BuildyBackend/BuildyBackend.ControllerTests/bin/
 BuildyBackend/BuildyBackend.ControllerTests/obj/
@@ -26,3 +27,5 @@ DatalexionFrontend/.vs/
 DatalexionFrontend/node_modules/
 
 BuildyBackend/BuildyBackend.UI/appsettings.Development.json
+
+BuildyBackend/BuildyBackend.UI/logs/
