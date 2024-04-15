@@ -70,6 +70,7 @@ app.UseHttpLogging();
 app.UseStaticFiles();
 app.UseCors(); //n2
 app.UseRouting(); //n3
+app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -39,6 +39,7 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints genéricos
 
         [HttpGet("GetWorker")]
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
             // 1..n
@@ -63,6 +64,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpGet("{id}", Name = "GetWorkerById")] // url completa: https://localhost:7003/api/Estates/1
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
             // 1..n

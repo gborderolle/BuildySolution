@@ -42,6 +42,7 @@ namespace BuildyBackend.UI.Controllers.V1
         #region Endpoints genéricos
 
         [HttpGet("GetReport")]
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<APIResponse>> Get([FromQuery] PaginationDTO paginationDTO)
         {
             var includes = new List<IncludePropertyConfiguration<Report>>
@@ -69,6 +70,7 @@ namespace BuildyBackend.UI.Controllers.V1
         }
 
         [HttpGet("{id:int}")] // url completa: https://localhost:7003/api/Reports/1
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<APIResponse>> Get([FromRoute] int id)
         {
             // 1..n
